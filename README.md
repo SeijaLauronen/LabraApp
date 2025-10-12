@@ -90,7 +90,7 @@ Frontend toimii oletuksena osoitteessa:
 Frontend (React) käyttää **Axiosia** lähettääkseen HTTP-pyyntöjä Laravelin REST API:in.  
 Laravel käsittelee pyynnön ja hakee/päivittää tietoja **MySQL-tietokannassa** Eloquent ORM:n avulla.
 
-```text
+
 ┌────────────────────┐        Axios (GET/POST/PUT/DELETE)       ┌────────────────────────────┐
 │  React Frontend    │  ─────────────────────────────────────▶ │  Laravel Backend (API)     │
 │  - LabResults.jsx  │                                          │  - routes/api.php          │
@@ -103,7 +103,7 @@ Laravel käsittelee pyynnön ja hakee/päivittää tietoja **MySQL-tietokannassa
                                                               │   - labtestresults       │
                                                               │   - labtestnames         │
                                                               └──────────────────────────┘
-```
+
 ```
 
 💡  
