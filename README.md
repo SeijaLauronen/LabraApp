@@ -18,6 +18,41 @@ LabraApp/
 
 ## ⚙️ Asennus ja käyttöönotto
 
+### 🗄️ Tietokanta-asetukset
+
+Oletuksena sovellus käyttää **MySQL**-kantaa (ks. `.env`).
+```markdown
+> 💡 Jos sinulla on jo olemassa oleva MySQL-tietokanta (esim. healthdb ja taulu labtestresults),
+> ei tarvitse tehdä mitään — migration tarkistaa taulun olemassaolon automaattisesti.
+> Jos taulu puuttuu, se luodaan automaattisesti `php artisan migrate` -komennolla.
+```
+
+Jos haluat luoda taulun itse, käytä seuraavaa rakennetta:
+
+```sql
+CREATE TABLE `labtestresults` (
+  `ID` int NOT NULL AUTO_INCREMENT,
+  `PersonID` varchar(10) NOT NULL,
+  `SampleDate` datetime DEFAULT NULL,
+  `CombinedName` varchar(200) DEFAULT NULL,
+  `AnalysisName` varchar(50) DEFAULT NULL,
+  `AnalysisShortName` varchar(50) DEFAULT NULL,
+  `AnalysisCode` varchar(50) DEFAULT NULL,
+  `Result` varchar(50) DEFAULT NULL,
+  `MinimumValue` varchar(10) DEFAULT NULL,
+  `MaximumValue` varchar(10) DEFAULT NULL,
+  `ValueReference` varchar(100) DEFAULT NULL,
+  `Unit` varchar(10) DEFAULT NULL,
+  `Cost` double DEFAULT NULL,
+  `CompanyUnitName` varchar(50) DEFAULT NULL,
+  `AdditionalInfo` varchar(50) DEFAULT NULL,
+  `AdditionalText` varchar(300) DEFAULT NULL,
+  `ResultAddedDate` datetime DEFAULT CURRENT_TIMESTAMP,
+  `ToMapDate` datetime DEFAULT NULL,
+  PRIMARY KEY (`ID`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
 ### 1️⃣ Backend (Laravel)
 
 Siirry `backend`-hakemistoon ja asenna riippuvuudet:
