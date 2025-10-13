@@ -152,13 +152,12 @@ Laravel käsittelee pyynnön ja hakee/päivittää tietoja **MySQL-tietokannassa
 
 ✅ Hakutoiminnot:  
 - PersonID-haku  
-- Päivämääräväli  
-- Analyysinimen osahaku  
-- TRIM()-korjaukset välilyönneille  
+- Rajaus päivämäärävälillä  
+- Rajaus analyysinimen osalla  
+- Taulukon järjestäminen sarakeotsikoista (nouseva/laskeva)  
 
 🚧 Tulossa:  
-- Taulukon sarakejärjestys (asc/desc)  
-- Useiden rivien valinta ja poisto  
+- Useiden rivien valinta ja muokkaus ja poisto  
 - Uuden tuloksen lisäyslomake  
 
 ---
