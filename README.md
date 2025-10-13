@@ -21,11 +21,10 @@ LabraApp/
 ### 🗄️ Tietokanta-asetukset
 
 Oletuksena sovellus käyttää **MySQL**-kantaa (ks. `.env`).
-```markdown
-> 💡 Jos sinulla on jo olemassa oleva MySQL-tietokanta (esim. healthdb ja taulu labtestresults),
-> ei tarvitse tehdä mitään — migration tarkistaa taulun olemassaolon automaattisesti.
+
+> 💡 Jos sinulla on jo olemassa oleva MySQL-tietokanta (esim. `healthdb` ja taulu `labtestresults`),  
+> ei tarvitse tehdä mitään — migration tarkistaa taulun olemassaolon automaattisesti.  
 > Jos taulu puuttuu, se luodaan automaattisesti `php artisan migrate` -komennolla.
-```
 
 Jos haluat luoda taulun itse, käytä seuraavaa rakennetta:
 
@@ -51,7 +50,9 @@ CREATE TABLE `labtestresults` (
   `ToMapDate` datetime DEFAULT NULL,
   PRIMARY KEY (`ID`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+```
 
+---
 
 ### 1️⃣ Backend (Laravel)
 
@@ -119,13 +120,13 @@ Frontend toimii oletuksena osoitteessa:
 | **DELETE** | `/api/labtestresults/{id}` | Poistaa tuloksen |
 
 ---
-```markdown
+
 ## 🔄 Datan kulku (React → Laravel → MySQL)
 
 Frontend (React) käyttää **Axiosia** lähettääkseen HTTP-pyyntöjä Laravelin REST API:in.  
 Laravel käsittelee pyynnön ja hakee/päivittää tietoja **MySQL-tietokannassa** Eloquent ORM:n avulla.
 
-
+```
 ┌────────────────────┐        Axios (GET/POST/PUT/DELETE)       ┌────────────────────────────┐
 │  React Frontend    │  ─────────────────────────────────────▶ │  Laravel Backend (API)     │
 │  - LabResults.jsx  │                                          │  - routes/api.php          │
@@ -138,7 +139,6 @@ Laravel käsittelee pyynnön ja hakee/päivittää tietoja **MySQL-tietokannassa
                                                               │   - labtestresults       │
                                                               │   - labtestnames         │
                                                               └──────────────────────────┘
-
 ```
 
 💡  
