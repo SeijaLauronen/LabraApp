@@ -137,7 +137,6 @@ Laravel käsittelee pyynnön ja hakee/päivittää tietoja **MySQL-tietokannassa
                                                               ┌──────────────────────────┐
                                                               │   MySQL Database         │
                                                               │   - labtestresults       │
-                                                              │   - labtestnames         │
                                                               └──────────────────────────┘
 ```
 
