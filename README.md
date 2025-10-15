@@ -26,6 +26,11 @@ Oletuksena sovellus käyttää **MySQL**-kantaa (ks. `.env`).
 > ei tarvitse tehdä mitään — migration tarkistaa taulun olemassaolon automaattisesti.  
 > Jos taulu puuttuu, se luodaan automaattisesti `php artisan migrate` -komennolla.
 
+> ℹ️ Huom:  
+> Laravelin oletuskomponentti *Sanctum* on poistettu tästä projektista,  
+> koska sovellus ei sisällä käyttäjien kirjautumista eikä API-tunnuksia.  
+> Tämä estää ylimääräisten taulujen, kuten `personal_access_tokens`, luomisen.
+
 Jos haluat luoda taulun itse, käytä seuraavaa rakennetta:
 
 ```sql
