@@ -31,4 +31,5 @@ Route::get('labtestresults/person/{personID}/dates/{startDate}/{endDate}', [LabT
 // Haku henkilön ja analyysin nimen perusteella
 Route::get('labtestresults/person/{personID}/analysis/{searchTerm}', [LabTestResultController::class, 'showByPersonAndAnalysis']);
 
+//Tämä rivi luo automaattisesti RESTful-reitit resurssille labtestresults (GET, POST, PUT, DELETE)
 Route::apiResource('labtestresults', LabTestResultController::class);
