@@ -59,7 +59,7 @@ Accept: application/json
   "Result": "5.3",
   "MinimumValue": "4.0",
   "MaximumValue": "6.0",
-  "ValueReference": "4.0–6.0 mmol/l",
+  "ValueReference": "Kaikki",
   "Unit": "mmol/l",
   "Cost": 12.50,
   "CompanyUnitName": "LabTest Oy",

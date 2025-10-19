@@ -118,8 +118,11 @@ const LabResults = () => {
               <th onClick={() => handleSort("ID")}>ID</th>
               <th onClick={() => handleSort("SampleDate")}>SampleDate</th>
               <th onClick={() => handleSort("AnalysisName")}>AnalysisName</th>
+              <th onClick={() => handleSort("CombinedName")}>CombinedName</th>
               <th onClick={() => handleSort("Result")}>Result</th>
               <th onClick={() => handleSort("Unit")}>Unit</th>
+              <th onClick={() => handleSort("MinimumValue")}>Min</th>
+              <th onClick={() => handleSort("MaximumValue")}>Max</th>
               <th onClick={() => handleSort("ValueReference")}>Reference</th>
             </tr>
           </thead>
@@ -129,8 +132,11 @@ const LabResults = () => {
                 <td>{r.ID}</td>
                 <td>{r.SampleDate}</td>
                 <td>{r.AnalysisName}</td>
+                <td>{r.CombinedName}</td>
                 <td>{r.Result}</td>
                 <td>{r.Unit}</td>
+                <td>{r.MinimumValue}</td>
+                <td>{r.MaximumValue}</td>
                 <td>{r.ValueReference}</td>
               </tr>
             ))}
