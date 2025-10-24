@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import axios from "axios";
 import LabTestResultRow from "./components/LabTestResultRow.jsx";
 import LabTestResultHeader from './components/LabTestResultHeader';
+import { labFields, copyFields, newRowDefaults } from "./definitions/labfields.js";
 
 // *SL  Lab Results UI Component
 const LabResults = () => {
@@ -21,6 +22,9 @@ const LabResults = () => {
   const [copiedRows, setCopiedRows] = useState([]);
   const [showCopiedForm, setShowCopiedForm] = useState(false);
 
+  const [editedRows, setEditedRows] = useState([]);
+  const [showEditForm, setShowEditForm] = useState(false);
+
   const baseUrl = "http://localhost:8000/api/labtestresults";
 
   /*
@@ -34,6 +38,57 @@ const LabResults = () => {
       }
     }, [personID]);
   */
+
+
+
+  // New rows (not based on existing results)
+  const [newRows, setNewRows] = useState([]);
+  const [showNewForm, setShowNewForm] = useState(false);
+
+  // Create a new empty row, copying copyFields values from the last newRows row (if any) or defaults
+  const addNewRow = () => {
+    if (!personID) {
+      return alert("Anna henkilön tunniste ennen uuden rivin lisäämistä.");
+    }
+    const prev = newRows.length ? newRows[newRows.length - 1] : null;
+    const newRow = {};
+
+    labFields.forEach(f => {
+      if (copyFields.includes(f.key)) {        
+        // copies from previous row if exists, otherwise from defaults
+        newRow[f.key] = prev && prev[f.key] !== undefined
+          ? prev[f.key]
+          : (typeof newRowDefaults[f.key] === 'function' ? newRowDefaults[f.key]() : (newRowDefaults[f.key] ?? ''));
+      } else {        
+        // other fields get default value (not copied)
+        newRow[f.key] = typeof newRowDefaults[f.key] === 'function'
+          ? newRowDefaults[f.key]()
+          : (newRowDefaults[f.key] ?? '');
+      }
+    });
+
+    newRow.ID = null;
+    newRow.PersonID = personID;
+    setNewRows([...newRows, newRow]);
+  };
+
+  const saveNewRows = async () => {
+    if (newRows.length === 0) return;
+    try {
+      const promises = newRows.map(row => axios.post(baseUrl, row));
+      await Promise.all(promises);
+      await handleSearch();
+      setNewRows([]);
+      setShowNewForm(false);
+    } catch (err) {
+      setError("Virhe tallennuksessa: " + (err.response?.statusText || err.message));
+      console.error(err.response?.data);
+    }
+  };
+
+
+
+
   const toggleRowSelection = (id) => {
     setSelectedRows(prev =>
       prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
@@ -88,6 +143,30 @@ const LabResults = () => {
       setShowCopiedForm(false);
     } catch (err) {
       //TODO: Paranna virheenkäsittelyä
+      setError("Virhe tallennuksessa: " + (err.response?.statusText || err.message));
+      console.error('Response:', err.response?.data);
+      console.error('Status:', err.response?.status);
+      console.error('Headers:', err.response?.headers);
+    }
+  };
+
+
+  const editSelected = () => {
+    if (selectedRows.length === 0) return alert("Valitse muokattavat rivit.");
+    const toEdit = results.filter(r => selectedRows.includes(r.ID));
+    setEditedRows(toEdit.map(r => ({ ...r }))); // kopiota muokkausta varten
+    setShowEditForm(true);
+    setSelectedRows([]);
+  };
+
+  const saveEditedRows = async () => {
+    try {
+      const promises = editedRows.map(row => axios.put(`${baseUrl}/${row.ID}`, row));
+      await Promise.all(promises);
+      await handleSearch(); // päivitä näkymä backendistä
+      setEditedRows([]);
+      setShowEditForm(false);
+    } catch (err) {
       setError("Virhe tallennuksessa: " + (err.response?.statusText || err.message));
       console.error('Response:', err.response?.data);
       console.error('Status:', err.response?.status);
@@ -154,6 +233,59 @@ const LabResults = () => {
 
     <div style={{ padding: "20px", fontFamily: "Arial" }}>
 
+      <h2>🧪 Labratulokset</h2>
+
+      <div style={{ marginBottom: "15px" }}>
+        <label>Henkilön tunniste: </label>
+        <input
+          type="text"
+          value={personID}
+          onChange={(e) => setPersonID(e.target.value)}
+          style={{ marginRight: "10px" }}
+        />
+        <button onClick={() => {
+          setShowNewForm(true);
+          if (newRows.length === 0) addNewRow();
+        }} style={{ marginLeft: '8px' }}>Lisää uusi tulos</button>
+
+        <br />
+
+
+      </div>
+
+
+      {showNewForm && newRows.length > 0 && (
+        <div style={{ marginTop: "20px", padding: "20px", border: "1px solid #ccc" }}>
+          <h3>Lisää uusia tuloksia</h3>
+          <div style={{ marginBottom: "8px" }}>
+            <button onClick={addNewRow}>Lisää uusi tulos</button>
+            <button onClick={() => { setNewRows([]); setShowNewForm(false); }} style={{ marginLeft: 8 }}>Peruuta</button>
+          </div>
+          <table border="1" cellPadding="6">
+            <tbody>
+              <LabTestResultHeader
+                mode='edit'
+                orientation='vertical'
+                data={newRows}
+                onFieldChange={(rowIdx, field, value) => {
+                  const copy = [...newRows];
+                  copy[rowIdx] = { ...copy[rowIdx], [field]: value };
+                  setNewRows(copy);
+                }}
+                onDelete={(rowIdx) => {
+                  setNewRows(newRows.filter((_, i) => i !== rowIdx));
+                }}
+              />
+            </tbody>
+          </table>
+          <div style={{ marginTop: "10px" }}>
+            <button onClick={saveNewRows}>Tallenna uudet rivit</button>
+            <button onClick={() => { setNewRows([]); setShowNewForm(false); }} style={{ marginLeft: 8 }}>Peruuta</button>
+          </div>
+        </div>
+      )}
+
+
 
       {showCopiedForm && copiedRows.length > 0 && (
         <div style={{ marginTop: "20px", padding: "20px", border: "1px solid #ccc" }}>
@@ -188,23 +320,46 @@ const LabResults = () => {
 
 
 
+      {showEditForm && editedRows.length > 0 && (
+        <div style={{ marginTop: "20px", padding: "20px", border: "1px solid #ccc" }}>
+          <h3>Muokkaa valittuja rivejä</h3>
+          <table border="1" cellPadding="6">
+            <tbody>
+              <LabTestResultHeader
+                mode='edit'
+                orientation='vertical'
+                data={editedRows}
+                onFieldChange={(rowIdx, field, value) => {
+                  const newRows = [...editedRows];
+                  newRows[rowIdx] = { ...newRows[rowIdx], [field]: value };
+                  setEditedRows(newRows);
+                }}
+                onDelete={(rowIdx) => {
+                  setEditedRows(editedRows.filter((_, i) => i !== rowIdx));
+                }}
+              />
+            </tbody>
+          </table>
+          <div style={{ marginTop: "10px" }}>
+            <button onClick={saveEditedRows}>Tallenna muutokset</button>
+            <button onClick={() => {
+              setEditedRows([]);
+              setShowEditForm(false);
+            }}>Peruuta</button>
+          </div>
+        </div>
+      )}
 
 
 
 
 
 
-      <h2>🧪 Labratulosten haku</h2>
 
-      <div style={{ marginBottom: "15px" }}>
-        <label>Henkilön tunniste: </label>
-        <input
-          type="text"
-          value={personID}
-          onChange={(e) => setPersonID(e.target.value)}
-          style={{ marginRight: "10px" }}
-        />
 
+      <div>
+
+        <h3>Hakuehdot</h3>
         <label>Analyysin nimi sisältää: </label>
         <input
           type="text"
@@ -212,7 +367,7 @@ const LabResults = () => {
           onChange={(e) => setSearchTerm(e.target.value)}
           style={{ marginRight: "10px" }}
         />
-        <br /><br />
+
         <label>Alkupäivä: </label>
         <input
           type="date"
@@ -239,7 +394,10 @@ const LabResults = () => {
           Poista valitut
         </button>
         <button onClick={copySelected} >
-          Kopioi valitut
+          Kopioi valitut uusien pohjaksi
+        </button>
+        <button onClick={editSelected} >
+          Muuta valitut
         </button>
       </div>
 

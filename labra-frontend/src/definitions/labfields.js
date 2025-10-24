@@ -16,3 +16,15 @@ export const labFields = [
     { key: "ResultAddedDate", label: "Tallennus pvm", type: "date", sortable: true, editable: false },
     { key: "ToMapDate", label: "Lisätty hv karttaan", type: "date", sortable: true, editable: true }
 ];
+
+
+// Fields whose values are automatically copied to a new row from the previous row
+export const copyFields = ["SampleDate", "CompanyUnitName"];
+
+// Default values if there is no previous row to copy from
+export const newRowDefaults = {
+    SampleDate: () => new Date().toISOString().split("T")[0],
+    CompanyUnitName: () => "", 
+    ResultAddedDate: () => null,
+    ToMapDate: () => null
+};
