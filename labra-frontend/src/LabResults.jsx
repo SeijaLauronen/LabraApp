@@ -1,6 +1,9 @@
 import React, { useState } from "react";
 import { useEffect } from "react";
 import axios from "axios";
+import LabTestResultRow from "./components/LabTestResultRow.jsx";
+import LabTestResultHeader from './components/LabTestResultHeader';
+
 // *SL  Lab Results UI Component
 const LabResults = () => {
   const [personID, setPersonID] = useState("");
@@ -165,47 +168,25 @@ const LabResults = () => {
           <h3>Muokkaa kopioituja rivejä</h3>
           <table border="1" cellPadding="6">
             <thead>
-              <tr>
-                <th>Näyte pvm</th>
-                <th>Analyysi</th>
-                <th>Tulos</th>
-                <th>Yksikkö</th>
-                <th>Toiminnot</th>
-              </tr>
+              <LabTestResultHeader mode='edit' handleSort={() => { }} />
             </thead>
             <tbody>
               {copiedRows.map((row, index) => (
-                <tr key={index}>
-                  <td>
-                    <input
-                      type="date"
-                      value={row.SampleDate}
-                      onChange={(e) => {
-                        const newRows = [...copiedRows];
-                        newRows[index].SampleDate = e.target.value;
-                        setCopiedRows(newRows);
-                      }}
-                    />
-                  </td>
-                  <td>{row.AnalysisName}</td>
-                  <td>
-                    <input
-                      type="text"
-                      value={row.Result}
-                      onChange={(e) => {
-                        const newRows = [...copiedRows];
-                        newRows[index].Result = e.target.value;
-                        setCopiedRows(newRows);
-                      }}
-                    />
-                  </td>
-                  <td>{row.Unit}</td>
-                  <td>
-                    <button onClick={() => {
-                      setCopiedRows(copiedRows.filter((_, i) => i !== index));
-                    }}>Poista</button>
-                  </td>
-                </tr>
+                <LabTestResultRow
+                  key={index}
+                  row={row}
+                  mode='edit'
+                  isSelected={false}
+                  onToggleSelect={() => { }}
+                  onFieldChange={(field, value) => {
+                    const newRows = [...copiedRows];
+                    newRows[index] = { ...newRows[index], [field]: value };
+                    setCopiedRows(newRows);
+                  }}
+                  onDelete={() => {
+                    setCopiedRows(copiedRows.filter((_, i) => i !== index));
+                  }}
+                />
               ))}
             </tbody>
           </table>
@@ -283,54 +264,25 @@ const LabResults = () => {
       {results.length > 0 && (
         <table border="1" cellPadding="6" style={{ cursor: "pointer" }}>
           <thead>
-            <tr>
-              <th></th>
-              <th onClick={() => handleSort("ID")}>ID</th>
-              <th onClick={() => handleSort("SampleDate")}>Näyte pvm</th>
-              <th onClick={() => handleSort("AnalysisName")}>Analyysi Name</th>
-              <th onClick={() => handleSort("CombinedName")}>Yleisnimi</th>
-              <th onClick={() => handleSort("AnalysisShortName")}>Lyhenne</th>
-              <th onClick={() => handleSort("AnalysisCode")}>Koodi</th>
-              <th onClick={() => handleSort("Result")}>Tulos</th>
-              <th onClick={() => handleSort("Unit")}>Yksikkö</th>
-              <th onClick={() => handleSort("MinimumValue")}>Min</th>
-              <th onClick={() => handleSort("MaximumValue")}>Max</th>
-              <th onClick={() => handleSort("ValueReference")}>Referenssiryhmä</th>
-              <th onClick={() => handleSort("CompanyUnitName")}>TH yksikkö</th>
-              <th onClick={() => handleSort("AdditionalInfo")}>Lisäinfo</th>
-              <th onClick={() => handleSort("AdditionalText")}>Lisätieto</th>
-              <th onClick={() => handleSort("ResultAddedDate")}>Tallennus pvm</th>
-              <th onClick={() => handleSort("ToMapDate")}>Lisätty hv karttaan</th>
-            </tr>
+            <LabTestResultHeader mode='show' handleSort={handleSort} />
           </thead>
           <tbody>
             {sortedResults.map((r) => (
 
-              <tr key={r.ID} style={{ background: selectedRows.includes(r.ID) ? '#e3f2fd' : 'transparent' }}>
-                <td>
-                  <input
-                    type="checkbox"
-                    checked={selectedRows.includes(r.ID)}
-                    onChange={() => toggleRowSelection(r.ID)}
-                  />
-                </td>
-                <td>{r.ID}</td>
-                <td>{r.SampleDate}</td>
-                <td>{r.AnalysisName}</td>
-                <td>{r.CombinedName}</td>
-                <td>{r.AnalysisShortName}</td>
-                <td>{r.AnalysisCode}</td>
-                <td>{r.Result}</td>
-                <td>{r.Unit}</td>
-                <td>{r.MinimumValue}</td>
-                <td>{r.MaximumValue}</td>
-                <td>{r.ValueReference}</td>
-                <td>{r.CompanyUnitName}</td>
-                <td>{r.AdditionalInfo}</td>
-                <td>{r.AdditionalText}</td>
-                <td>{r.ResultAddedDate}</td>
-                <td>{r.ToMapDate}</td>
-              </tr>
+              <LabTestResultRow
+                key={r.ID}
+                row={r}
+                onToggleSelect={() => toggleRowSelection(r.ID)}
+                isSelected={selectedRows.includes(r.ID)}
+                mode='show'
+              /*
+              onDelete={() => {
+                //TODO täm ei toimi, ei valitse riviä ennen poistoa. Muutenkin turha toiminto tässä tämä poisto
+                setSelectedRows(selectedRows.filter(id => id !== r.ID));
+                deleteSelected(); // Voit myös kutsua deleteSelected suoraan
+              }}
+                */
+              />
             ))}
           </tbody>
         </table>
