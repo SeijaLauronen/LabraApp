@@ -152,14 +152,6 @@ const LabResults = () => {
 
 
 
-
-
-
-
-
-
-
-
     <div style={{ padding: "20px", fontFamily: "Arial" }}>
 
 
@@ -167,27 +159,20 @@ const LabResults = () => {
         <div style={{ marginTop: "20px", padding: "20px", border: "1px solid #ccc" }}>
           <h3>Muokkaa kopioituja rivejä</h3>
           <table border="1" cellPadding="6">
-            <thead>
-              <LabTestResultHeader mode='edit' handleSort={() => { }} />
-            </thead>
             <tbody>
-              {copiedRows.map((row, index) => (
-                <LabTestResultRow
-                  key={index}
-                  row={row}
-                  mode='edit'
-                  isSelected={false}
-                  onToggleSelect={() => { }}
-                  onFieldChange={(field, value) => {
-                    const newRows = [...copiedRows];
-                    newRows[index] = { ...newRows[index], [field]: value };
-                    setCopiedRows(newRows);
-                  }}
-                  onDelete={() => {
-                    setCopiedRows(copiedRows.filter((_, i) => i !== index));
-                  }}
-                />
-              ))}
+              <LabTestResultHeader
+                mode='edit'
+                orientation='vertical'
+                data={copiedRows}
+                onFieldChange={(rowIdx, field, value) => {
+                  const newRows = [...copiedRows];
+                  newRows[rowIdx] = { ...newRows[rowIdx], [field]: value };
+                  setCopiedRows(newRows);
+                }}
+                onDelete={(rowIdx) => {
+                  setCopiedRows(copiedRows.filter((_, i) => i !== rowIdx));
+                }}
+              />
             </tbody>
           </table>
           <div style={{ marginTop: "10px" }}>
