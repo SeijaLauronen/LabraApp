@@ -4,6 +4,7 @@ import axios from "axios";
 import LabTestResultRow from "./components/LabTestResultRow.jsx";
 import LabTestResultHeader from './components/LabTestResultHeader';
 import { labFields, copyFields, newRowDefaults } from "./definitions/labfields.js";
+import LabTestResultsEditor from './components/LabTestResultsEditor.jsx';
 
 // *SL  Lab Results UI Component
 const LabResults = () => {
@@ -263,105 +264,48 @@ const LabResults = () => {
 
 
       {showNewForm && newRows.length > 0 && (
-        <div style={{ marginTop: "20px", padding: "20px", border: "1px solid #ccc" }}>
-          <h3>Lisää uusia tuloksia</h3>
-          <div style={{ marginBottom: "8px" }}>
-            <button onClick={addNewRow}>Lisää uusi tulos</button>
-            <button onClick={() => { setNewRows([]); setShowNewForm(false); }} style={{ marginLeft: 8 }}>Peruuta</button>
-          </div>
-          <table border="1" cellPadding="6">
-            <tbody>
-              <LabTestResultHeader
-                mode='edit'
-                orientation='vertical'
-                data={newRows}
-                onFieldChange={(rowIdx, field, value) => {
-                  const copy = [...newRows];
-                  copy[rowIdx] = { ...copy[rowIdx], [field]: value };
-                  setNewRows(copy);
-                }}
-                onDelete={(rowIdx) => {
-                  setNewRows(newRows.filter((_, i) => i !== rowIdx));
-                }}
-              />
-            </tbody>
-          </table>
-          <div style={{ marginTop: "10px" }}>
-            <button onClick={saveNewRows}>Tallenna uudet rivit</button>
-            <button onClick={() => { setNewRows([]); setShowNewForm(false); }} style={{ marginLeft: 8 }}>Peruuta</button>
-          </div>
-        </div>
+        <LabTestResultsEditor
+          title="Lisää uusia tuloksia"
+          rows={newRows}
+          setRows={setNewRows}
+          personID={personID}
+          onSave={saveNewRows}
+          onCancel={() => { setNewRows([]); setShowNewForm(false); }}
+          allowAdd={true}
+          allowDelete={true}
+          saveLabel="Tallenna uudet rivit"
+        />
       )}
-
 
 
       {showCopiedForm && copiedRows.length > 0 && (
-        <div style={{ marginTop: "20px", padding: "20px", border: "1px solid #ccc" }}>
-          <h3>Muokkaa kopioituja rivejä</h3>
-          <table border="1" cellPadding="6">
-            <tbody>
-              <LabTestResultHeader
-                mode='edit'
-                orientation='vertical'
-                data={copiedRows}
-                onFieldChange={(rowIdx, field, value) => {
-                  const newRows = [...copiedRows];
-                  newRows[rowIdx] = { ...newRows[rowIdx], [field]: value };
-                  setCopiedRows(newRows);
-                }}
-                onDelete={(rowIdx) => {
-                  setCopiedRows(copiedRows.filter((_, i) => i !== rowIdx));
-                }}
-              />
-            </tbody>
-          </table>
-          <div style={{ marginTop: "10px" }}>
-            <button onClick={saveCopiedRows}>Tallenna uudet rivit</button>
-            <button onClick={() => {
-              setCopiedRows([]);
-              setShowCopiedForm(false);
-            }}>Peruuta</button>
-          </div>
-        </div>
+        <LabTestResultsEditor
+          title="Muokkaa kopioituja rivejä"
+          rows={copiedRows}
+          setRows={setCopiedRows}
+          personID={personID}
+          onSave={saveCopiedRows}
+          onCancel={() => { setCopiedRows([]); setShowCopiedForm(false); }}
+          allowAdd={true}
+          allowDelete={true}
+          saveLabel="Tallenna uudet rivit"
+        />
       )}
-
-
 
 
       {showEditForm && editedRows.length > 0 && (
-        <div style={{ marginTop: "20px", padding: "20px", border: "1px solid #ccc" }}>
-          <h3>Muokkaa valittuja rivejä</h3>
-          <table border="1" cellPadding="6">
-            <tbody>
-              <LabTestResultHeader
-                mode='edit'
-                orientation='vertical'
-                data={editedRows}
-                onFieldChange={(rowIdx, field, value) => {
-                  const newRows = [...editedRows];
-                  newRows[rowIdx] = { ...newRows[rowIdx], [field]: value };
-                  setEditedRows(newRows);
-                }}
-                onDelete={(rowIdx) => {
-                  setEditedRows(editedRows.filter((_, i) => i !== rowIdx));
-                }}
-              />
-            </tbody>
-          </table>
-          <div style={{ marginTop: "10px" }}>
-            <button onClick={saveEditedRows}>Tallenna muutokset</button>
-            <button onClick={() => {
-              setEditedRows([]);
-              setShowEditForm(false);
-            }}>Peruuta</button>
-          </div>
-        </div>
+        <LabTestResultsEditor
+          title="Muokkaa valittuja rivejä"
+          rows={editedRows}
+          setRows={setEditedRows}
+          personID={personID}
+          onSave={saveEditedRows}
+          onCancel={() => { setEditedRows([]); setShowEditForm(false); }}
+          allowAdd={false}         // no new rows when editing existing ones
+          allowDelete={true}
+          saveLabel="Tallenna muutokset"
+        />
       )}
-
-
-
-
-
 
 
 
