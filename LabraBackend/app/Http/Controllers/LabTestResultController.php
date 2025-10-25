@@ -75,7 +75,11 @@ class LabTestResultController extends Controller
         return LabTestResult::findOrFail($id);
     }
 
-
+    /**
+     * Summary of search
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function search(Request $request)
     {
         \Log::debug('Search request params:', $request->all());
@@ -96,11 +100,14 @@ class LabTestResultController extends Controller
             $start = $request->input('startDate');
             $end = $request->input('endDate');
             if ($start && $end) {
-                $query->whereBetween('SampleDate', [$start, $end]);
+                $query->whereBetween('SampleDate', [
+                    $start . ' 00:00:00',
+                    $end . ' 23:59:59'
+                ]);
             } elseif ($start) {
-                $query->where('SampleDate', '>=', $start);
+                $query->where('SampleDate', '>=', $start . ' 00:00:00');
             } elseif ($end) {
-                $query->where('SampleDate', '<=', $end);
+                $query->where('SampleDate', '<=', $end . ' 23:59:59');
             }
 
             // Search term for analysis name (partial match)
@@ -129,7 +136,9 @@ class LabTestResultController extends Controller
         }
     }
 
-   
+
+
+
     /**
      * Update the specified resource in storage.
      *

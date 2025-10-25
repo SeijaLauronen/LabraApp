@@ -60,7 +60,7 @@ const LabTestResultsEditor = ({
     <div style={{ marginTop: 20, padding: 12, border: '1px solid #ccc' }}>
       <h3>{title}</h3>
       <div style={{ marginBottom: 8 }}>
-        {allowAdd && <button onClick={handleAddRow}>Lisää uusi)</button>}
+        {allowAdd && <button onClick={handleAddRow}>Lisää uusi</button>}
         <button onClick={onCancel} style={{ marginLeft: 8 }}>Peruuta</button>
       </div>
 

@@ -113,13 +113,11 @@ Frontend toimii oletuksena osoitteessa:
 
 ## 🔌 API-päätepisteet
 
-## 🔌 API‑päätepisteet
-
 | Tyyppi | Endpoint | Kuvaus |
-|:-------|:---------|:--------|
+|:-------|:---------|:-------|
 | **GET** | `/api/labtestresults` | Hae kaikki laboratoriotulokset (index). |
 | **GET** | `/api/labtestresults/{id}` | Hae yksittäinen tulos ID:n perusteella (show). |
-| **GET** | `/api/labtestresults/search` | Joukkohaku, vaatii `personID` query‑parametrin ja tukee lisäparametreja: `startDate`, `endDate`, `searchTerm`, `sortField`, `sortOrder`, `perPage`. Esim. `/api/labtestresults/search?personID=TEST123&startDate=2025-10-01&endDate=2025-10-31&searchTerm=glukoosi` |
+| **GET** | `/api/labtestresults/search` | Joukkohaku, vaatii `personID` query‑parametrin.<br>Tukee lisäparametreja:<br>• `startDate`, `endDate`<br>• `searchTerm`<br>• `sortField`, `sortOrder`<br>• `perPage`<br><br>Esimerkki:<br>`/api/labtestresults/search?`<br>`personID=TEST123&`<br>`startDate=2025-10-01&`<br>`endDate=2025-10-31&`<br>`searchTerm=glukoosi` |
 | **POST** | `/api/labtestresults` | Lisää uusi laboratoriotulos (store). |
 | **PUT** | `/api/labtestresults/{id}` | Päivitä olemassa oleva tulos (update). |
 | **DELETE** | `/api/labtestresults/{id}` | Poista tulos (destroy). |
@@ -161,7 +159,7 @@ Laravel käsittelee pyynnön ja hakee/päivittää tietoja **MySQL-tietokannassa
 ## 🧠 Kehitysvaiheet
 
 ✅ Hakutoiminnot:  
-- Haku henkilän tunnuksella  
+- Haku henkilön tunnuksella  
 - Rajaus päivämäärävälillä  
 - Rajaus analyysinimen osalla  
 - Taulukon järjestäminen sarakeotsikoista (nouseva/laskeva) 
