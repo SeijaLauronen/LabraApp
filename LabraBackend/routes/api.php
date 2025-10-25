@@ -1,7 +1,8 @@
 <?php
-
+// SL 202510: API routes for LabTestResult
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\LabTestResultController; // SL 202510: added this line
 
 /*
 |--------------------------------------------------------------------------
@@ -14,11 +15,15 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+// SL 202510 sanctum removed, no need for this:
+/*
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+*/
 
-use App\Http\Controllers\LabTestResultController;
+// SL 202510: LabTestResult API routes
+/*
 // Haku henkilön mukaan
 Route::get('labtestresults/person/{personID}', [LabTestResultController::class, 'showByPersonID']);
 
@@ -30,6 +35,13 @@ Route::get('labtestresults/person/{personID}/dates/{startDate}/{endDate}', [LabT
 
 // Haku henkilön ja analyysin nimen perusteella
 Route::get('labtestresults/person/{personID}/analysis/{searchTerm}', [LabTestResultController::class, 'showByPersonAndAnalysis']);
+*/
 
-//Tämä rivi luo automaattisesti RESTful-reitit resurssille labtestresults (GET, POST, PUT, DELETE)
+// Search that requires personID and allows combining other criteria
+// Note! This route must be defined before the resource route to avoid conflicts!!
+Route::get('labtestresults/search', [LabTestResultController::class, 'search']);
+
+
+// This line automatically creates RESTful routes for the labtestresults resource (GET, POST, PUT, DELETE)
 Route::apiResource('labtestresults', LabTestResultController::class);
+

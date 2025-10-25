@@ -10,8 +10,8 @@ Backend kommunikoi MySQL-tietokannan kanssa, jossa laboratoriotiedot sijaitsevat
 
 ```
 LabraApp/
-├── backend/      # Laravel 8 API (MySQL, Eloquent ORM)
-└── frontend/     # React (Vite) käyttöliittymä, Axios-pyynnöt API:in
+├── LabraBackend/      # Laravel API (MySQL, Eloquent ORM)
+└── labra-frontend/    # React (Vite) käyttöliittymä, Axios-pyynnöt API:in
 ```
 
 ---
@@ -61,10 +61,10 @@ CREATE TABLE `labtestresults` (
 
 ### 1️⃣ Backend (Laravel)
 
-Siirry `backend`-hakemistoon ja asenna riippuvuudet:
+Siirry `LabraBackend`-hakemistoon ja asenna riippuvuudet:
 
 ```bash
-cd backend
+cd LabraBackend
 composer install
 ```
 
@@ -93,10 +93,10 @@ Laravel toimii oletuksena osoitteessa:
 
 ### 2️⃣ Frontend (React)
 
-Siirry `frontend`-hakemistoon ja asenna npm-riippuvuudet:
+Siirry `labra-frontend`-hakemistoon ja asenna npm-riippuvuudet:
 
 ```bash
-cd frontend
+cd labra-frontend
 npm install
 ```
 
@@ -113,17 +113,23 @@ Frontend toimii oletuksena osoitteessa:
 
 ## 🔌 API-päätepisteet
 
-| Tyyppi | Endpoint | Kuvaus |
-|:-------|:----------|:--------|
-| **GET** | `/api/labtestresults` | Hakee kaikki laboratoriotulokset |
-| **GET** | `/api/labtestresults/{id}` | Hakee yksittäisen tuloksen ID:n perusteella |
-| **GET** | `/api/labtestresults/person/{personID}` | Hakee kaikki henkilön tulokset |
-| **GET** | `/api/labtestresults/person/{personID}/analysis/{name}` | Hakee tulokset henkilön ja analyysin nimen perusteella |
-| **GET** | `/api/labtestresults/person/{personID}/dates/{start}/{end}` | Hakee henkilön tulokset aikaväliltä |
-| **POST** | `/api/labtestresults` | Lisää uusi laboratoriotulos |
-| **PUT** | `/api/labtestresults/{id}` | Päivittää olemassa olevan tuloksen |
-| **DELETE** | `/api/labtestresults/{id}` | Poistaa tuloksen |
+## 🔌 API‑päätepisteet
 
+| Tyyppi | Endpoint | Kuvaus |
+|:-------|:---------|:--------|
+| **GET** | `/api/labtestresults` | Hae kaikki laboratoriotulokset (index). |
+| **GET** | `/api/labtestresults/{id}` | Hae yksittäinen tulos ID:n perusteella (show). |
+| **GET** | `/api/labtestresults/search` | Joukkohaku, vaatii `personID` query‑parametrin ja tukee lisäparametreja: `startDate`, `endDate`, `searchTerm`, `sortField`, `sortOrder`, `perPage`. Esim. `/api/labtestresults/search?personID=TEST123&startDate=2025-10-01&endDate=2025-10-31&searchTerm=glukoosi` |
+| **POST** | `/api/labtestresults` | Lisää uusi laboratoriotulos (store). |
+| **PUT** | `/api/labtestresults/{id}` | Päivitä olemassa oleva tulos (update). |
+| **DELETE** | `/api/labtestresults/{id}` | Poista tulos (destroy). |
+
+Huom: reititys kannattaa määritellä siten, että spesifiset reitit (esim. `/labtestresults/search`) ovat ennen `Route::apiResource('labtestresults', ...)` tiedostossa `routes/api.php`, jotta `/search` ei huku resurssireittien alle.
+
+Esimerkki hakupyynnöstä:
+```
+GET /api/labtestresults/search?personID=TEST123&startDate=2025-10-01&endDate=2025-10-31&searchTerm=glukoosi
+```
 ---
 
 ## 🔄 Datan kulku (React → Laravel → MySQL)
@@ -155,14 +161,17 @@ Laravel käsittelee pyynnön ja hakee/päivittää tietoja **MySQL-tietokannassa
 ## 🧠 Kehitysvaiheet
 
 ✅ Hakutoiminnot:  
-- PersonID-haku  
+- Haku henkilän tunnuksella  
 - Rajaus päivämäärävälillä  
 - Rajaus analyysinimen osalla  
-- Taulukon järjestäminen sarakeotsikoista (nouseva/laskeva)  
+- Taulukon järjestäminen sarakeotsikoista (nouseva/laskeva) 
+- Useiden rivien valinta ja muokkaus ja poisto sekä kopiointi uusien tulosten pohjaksi 
+- Uuden tuloksen lisäys
 
 🚧 Tulossa:  
-- Useiden rivien valinta ja muokkaus ja poisto  
-- Uuden tuloksen lisäyslomake  
+- Käyttöliittymän parannus  
+- Lisää hakuehtoja
+- Tulosten massatuonti  
 
 ---
 

@@ -1,6 +1,6 @@
 export const labFields = [
     { key: "ID", label: "ID", type: "text", sortable: true, editable: false },
-    { key: "SampleDate", label: "Näyte pvm", type: "date", sortable: true, editable: true },
+    { key: "SampleDate", label: "Näyte pvm", type: "datetime-local", sortable: true, editable: true },
     { key: "AnalysisName", label: "Analyysin nimi", type: "text", sortable: true, editable: true },
     { key: "CombinedName", label: "Yleisnimi", type: "text", sortable: true, editable: true },
     { key: "AnalysisShortName", label: "Lyhenne", type: "text", sortable: true, editable: true },
@@ -23,7 +23,12 @@ export const copyFields = ["SampleDate", "CompanyUnitName"];
 
 // Default values if there is no previous row to copy from
 export const newRowDefaults = {
-    SampleDate: () => new Date().toISOString().split("T")[0],
+     SampleDate: () => {
+        const d = new Date();
+        d.setHours(9, 0, 0); // Set time to 09:00:00
+        const pad = (n) => n.toString().padStart(2, '0');
+        return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    },
     CompanyUnitName: () => "", 
     ResultAddedDate: () => null,
     ToMapDate: () => null

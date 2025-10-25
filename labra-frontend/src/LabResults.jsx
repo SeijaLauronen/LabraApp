@@ -54,12 +54,12 @@ const LabResults = () => {
     const newRow = {};
 
     labFields.forEach(f => {
-      if (copyFields.includes(f.key)) {        
+      if (copyFields.includes(f.key)) {
         // copies from previous row if exists, otherwise from defaults
         newRow[f.key] = prev && prev[f.key] !== undefined
           ? prev[f.key]
           : (typeof newRowDefaults[f.key] === 'function' ? newRowDefaults[f.key]() : (newRowDefaults[f.key] ?? ''));
-      } else {        
+      } else {
         // other fields get default value (not copied)
         newRow[f.key] = typeof newRowDefaults[f.key] === 'function'
           ? newRowDefaults[f.key]()
@@ -118,18 +118,29 @@ const LabResults = () => {
     }
   };
 
+  // helper: format local date to "YYYY-MM-DDTHH:MM"
+  const formatLocalDateTime = (d = new Date()) => {
+    const pad = (n) => n.toString().padStart(2, '0');
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  };
+
   const copySelected = () => {
     if (selectedRows.length === 0) return alert("Valitse kopioitavat rivit.");
     const copied = results.filter(r => selectedRows.includes(r.ID));
     setCopiedRows(copied.map(row => ({
       ...row,
-      ID: null,  // Tyhjätään ID uutta riviä varten
-      SampleDate: new Date().toISOString().split('T')[0], // Asetetaan tämä päivä
+      ID: null,  // Null for new row 
+      SampleDate: (() => {
+        const d = new Date();
+        d.setHours(9, 0, 0); // Set time to 09:00:00
+        const pad = (n) => n.toString().padStart(2, '0');
+        return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+      })(),
       ResultAddedDate: null,
       ToMapDate: null
     })));
     setShowCopiedForm(true);
-    setSelectedRows([]); // Tyhjennetään valinnat
+    setSelectedRows([]); //Set choises empty
   };
 
   const saveCopiedRows = async () => {
@@ -138,7 +149,7 @@ const LabResults = () => {
         axios.post(`${baseUrl}`, row)
       );
       await Promise.all(promises);
-      handleSearch(); // Päivitetään tuloslista
+      handleSearch(); // Refresh resultlist 
       setCopiedRows([]);
       setShowCopiedForm(false);
     } catch (err) {
@@ -154,7 +165,7 @@ const LabResults = () => {
   const editSelected = () => {
     if (selectedRows.length === 0) return alert("Valitse muokattavat rivit.");
     const toEdit = results.filter(r => selectedRows.includes(r.ID));
-    setEditedRows(toEdit.map(r => ({ ...r }))); // kopiota muokkausta varten
+    setEditedRows(toEdit.map(r => ({ ...r }))); // copy for editing 
     setShowEditForm(true);
     setSelectedRows([]);
   };
@@ -163,7 +174,7 @@ const LabResults = () => {
     try {
       const promises = editedRows.map(row => axios.put(`${baseUrl}/${row.ID}`, row));
       await Promise.all(promises);
-      await handleSearch(); // päivitä näkymä backendistä
+      await handleSearch(); // refresh view from backend
       setEditedRows([]);
       setShowEditForm(false);
     } catch (err) {
@@ -190,27 +201,24 @@ const LabResults = () => {
     setLoading(true);
 
     try {
-      let url = `${baseUrl}/person/${personID}`;
+      const params = { personID };
+      if (startDate) params.startDate = startDate;
+      if (endDate) params.endDate = endDate;
+      if (searchTerm) params.searchTerm = searchTerm;
+      if (sortField) {
+        params.sortField = sortField;
+        params.sortOrder = sortOrder;
+      }
+      params.perPage = 100; // change as needed
 
-      // *SL TODO: Now prioritizes searchTerm over date range if both are provided, not good
-      if (searchTerm) {
-        url = `${baseUrl}/person/${personID}/analysis/${searchTerm}`;
-      }
-      else if (startDate && endDate) {
-        url = `${baseUrl}/person/${personID}/dates/${startDate}/${endDate}`;
-      }
-      else if (startDate && !endDate) {
-        const today = new Date().toISOString().split("T")[0];
-        url = `${baseUrl}/person/${personID}/dates/${startDate}/${today}`;
-      }
-      else if (!startDate && endDate) {
-        url = `${baseUrl}/person/${personID}/dates/1900-01-01/${endDate}`;
-      }
+      const res = await axios.get(`${baseUrl}/search`, { params });
 
-      const res = await axios.get(url);
-      setResults(res.data);
+      // if backend returns pagination -> res.data.data is the array
+      const items = Array.isArray(res.data) ? res.data : (res.data.data ?? []);
+      setResults(items);
     } catch (err) {
-      setError("Virhe haussa: " + (err.response?.statusText || err.message));
+      console.error('Full error:', err); // Show the whole error in console for debugging
+      setError("Virhe haussa: " + err.response?.statusText + err.message);
     } finally {
       setLoading(false);
     }
