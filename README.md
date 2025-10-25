@@ -158,13 +158,13 @@ Laravel käsittelee pyynnön ja hakee/päivittää tietoja **MySQL-tietokannassa
 
 ## 🧠 Kehitysvaiheet
 
-✅ Hakutoiminnot:  
-- Haku henkilön tunnuksella  
-- Rajaus päivämäärävälillä  
-- Rajaus analyysinimen osalla  
-- Taulukon järjestäminen sarakeotsikoista (nouseva/laskeva) 
-- Useiden rivien valinta ja muokkaus ja poisto sekä kopiointi uusien tulosten pohjaksi 
+✅ Toiminnot:  
 - Uuden tuloksen lisäys
+- Tulosten haku henkilön tunnuksella  
+- Tulosten rajaus päivämäärävälillä  
+- Tulosten rajaus analyysinimen osalla  
+- Taulukon järjestäminen sarakeotsikoista (nouseva/laskeva) 
+- Useiden rivien valinta ja niiden muokkaus, poisto sekä kopiointi uusien tulosten pohjaksi 
 
 🚧 Tulossa:  
 - Käyttöliittymän parannus  
