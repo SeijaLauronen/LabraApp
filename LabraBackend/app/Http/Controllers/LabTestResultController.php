@@ -1,5 +1,5 @@
 <?php
-
+// SL 202510: for handling data going into the database
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
@@ -26,27 +26,42 @@ class LabTestResultController extends Controller
      */
     public function store(Request $request)
     {
-        $data = $request->validate([
-            'PersonID' => 'required|string|max:10',
-            'SampleDate' => 'nullable|date',
-            'CombinedName' => 'nullable|string|max:200',
-            'AnalysisName' => 'nullable|string|max:50',
-            'AnalysisShortName' => 'nullable|string|max:50',
-            'AnalysisCode' => 'nullable|string|max:50',
-            'Result' => 'nullable|string|max:50',
-            'MinimumValue' => 'nullable|string|max:10',
-            'MaximumValue' => 'nullable|string|max:10',
-            'ValueReference' => 'nullable|string|max:100',
-            'Unit' => 'nullable|string|max:10',
-            'Cost' => 'nullable|numeric',
-            'CompanyUnitName' => 'nullable|string|max:50',
-            'AdditionalInfo' => 'nullable|string|max:50',
-            'AdditionalText' => 'nullable|string|max:300',
-            'ResultAddedDate' => 'nullable|date',
-            'ToMapDate' => 'nullable|date'
-        ]);
 
-        return LabTestResult::create($data);
+        \Log::debug('Saapunut data:', $request->all());
+        try {
+            $data = $request->validate([
+                'PersonID' => 'required|string|max:10',
+                'SampleDate' => 'nullable|date',
+                'CombinedName' => 'nullable|string|max:200',
+                'AnalysisName' => 'nullable|string|max:50',
+                'AnalysisShortName' => 'nullable|string|max:50',
+                'AnalysisCode' => 'nullable|string|max:50',
+                'Result' => 'nullable|string|max:50',
+                'MinimumValue' => 'nullable|string|max:10',
+                'MaximumValue' => 'nullable|string|max:10',
+                'ValueReference' => 'nullable|string|max:100',
+                'Unit' => 'nullable|string|max:10',
+                'Cost' => 'nullable|numeric',
+                'CompanyUnitName' => 'nullable|string|max:50',
+                'AdditionalInfo' => 'nullable|string|max:50',
+                'AdditionalText' => 'nullable|string|max:300',
+                'ResultAddedDate' => 'nullable|date',
+                'ToMapDate' => 'nullable|date'
+            ]);
+
+            // Add  ResultAddedDate
+            $data['ResultAddedDate'] = now();
+            $result = LabTestResult::create($data);
+            \Log::debug('Tallennettu tulos:', ['id' => $result->id]);
+            return $result;
+        } catch (\Exception $e) {
+            \Log::error('Virhe tallennuksessa:', [
+                'message' => $e->getMessage(),
+                'line' => $e->getLine(),
+                'file' => $e->getFile()
+            ]);
+            throw $e;
+        }
     }
 
     /**
@@ -60,66 +75,67 @@ class LabTestResultController extends Controller
         return LabTestResult::findOrFail($id);
     }
 
-    public function showByPersonID($personID)
+    /**
+     * Summary of search
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function search(Request $request)
     {
-        return LabTestResult::whereRaw('TRIM(PersonID) = ?', [trim($personID)])->get();
+        \Log::debug('Search request params:', $request->all());
+
+        if (!$request->filled('personID')) {
+            return response()->json(['error' => 'personID is required'], 400);
+        }
+
+        try {
+            $query = LabTestResult::query();
+
+            // Trim PersonID
+            // TODO: TRIM‑vertailu heikentää indeksien hyödyntämistä — harkitse PersonID:n tallentamista aina trimattuna (esim. modelissa tai ennen tallennusta) ja vertailua suoraan.
+            $personID = trim($request->input('personID'));
+            $query->whereRaw('TRIM(PersonID) = ?', [$personID]);
+
+            // Date range: startDate / endDate can be separate or both
+            $start = $request->input('startDate');
+            $end = $request->input('endDate');
+            if ($start && $end) {
+                $query->whereBetween('SampleDate', [
+                    $start . ' 00:00:00',
+                    $end . ' 23:59:59'
+                ]);
+            } elseif ($start) {
+                $query->where('SampleDate', '>=', $start . ' 00:00:00');
+            } elseif ($end) {
+                $query->where('SampleDate', '<=', $end . ' 23:59:59');
+            }
+
+            // Search term for analysis name (partial match)
+            if ($request->filled('searchTerm')) {
+                $term = $request->input('searchTerm');
+                $query->where('AnalysisName', 'like', "%{$term}%");
+            }
+
+
+            // Sort and pagination (for example ?perPage=50)
+            // TODO testaa tuo pagination
+            $sortField = $request->input('sortField', 'SampleDate');
+            $sortOrder = $request->input('sortOrder', 'desc');
+            $perPage = (int) $request->input('perPage', 100);
+
+            $results = $query->orderBy($sortField, $sortOrder)->paginate($perPage);
+            \Log::debug('Search results count:', ['count' => $results->count()]);
+            return response()->json($results);
+        } catch (\Exception $e) {
+            \Log::error('Search error:', [
+                'message' => $e->getMessage(),
+                'line' => $e->getLine(),
+                'file' => $e->getFile()
+            ]);
+            throw $e;
+        }
     }
 
-    // 🔹 Hae henkilön tietty tulos ID:n perusteella
-    public function showByPersonAndId($personID, $id)
-    {
-        return LabTestResult::whereRaw('TRIM(PersonID) = ?', [trim($personID)])
-            ->where('ID', $id)
-            ->firstOrFail();
-    }
-
-    // 🔹 Hae henkilön kaikki tulokset annetulta päivämääräväiltä
-    public function showByPersonAndDateRange($personID, $startDate, $endDate)
-    {
-        /*
-        return LabTestResult::where('PersonID', $personID)
-            ->whereBetween('SampleDate', [$startDate, $endDate])
-            ->orderBy('SampleDate', 'asc')
-            ->get();
-            */
-        return LabTestResult::whereRaw('TRIM(PersonID) = ?', [trim($personID)])
-            ->whereBetween('SampleDate', [$startDate, $endDate])
-            ->orderBy('SampleDate', 'asc')
-            ->get();
-    }
-
-    // 🔎 Hae henkilön tulokset, joissa analyysin nimi sisältää osan merkkijonoa
-    public function showByPersonAndAnalysis($personID, $searchTerm)
-    {
-
-        return LabTestResult::whereRaw('TRIM(PersonID) = ?', [trim($personID)])
-            ->where('AnalysisName', 'LIKE', "%{$searchTerm}%")
-            ->orderBy('SampleDate', 'desc')
-            ->get();
-        /*
-        return LabTestResult::where('PersonID', $personID)
-            ->where('AnalysisName', 'LIKE', "%{$searchTerm}%")
-            ->orderBy('SampleDate', 'desc')
-            ->get();
-        */
-        /*
-        // Debuggausta varten tämä koodinpätkä:
-        $query = LabTestResult::where('PersonID', $personID)
-            ->where('AnalysisName', 'LIKE', "%{$searchTerm}%")
-            ->orderBy('SampleDate', 'desc');
-
-        dd($query->toSql(), $query->getBindings());
-        */
-        // Kysely suoraan selaimeen, ei Reactin kautta:
-        // http://localhost:8000/api/labtestresults/person/TEST123/analysis/TSH
-
-        /* Voisi myös ajaa suoraan tinkerissä antamlla siinä:
-        use App\Models\LabTestResult;
-        LabTestResult::where('PersonID', 'ABC123')
-            ->where('AnalysisName', 'LIKE', '%TS%')
-            ->get(['ID','PersonID','AnalysisName']);
-        */
-    }
 
 
 

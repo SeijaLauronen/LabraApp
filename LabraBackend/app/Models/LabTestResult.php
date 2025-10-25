@@ -5,6 +5,8 @@ namespace App\Models;
 //use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+// *SL  Model for labresults table
+
 class LabTestResult extends Model
 {
     //use HasFactory;
