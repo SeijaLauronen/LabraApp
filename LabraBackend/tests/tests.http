@@ -1,3 +1,4 @@
+// SL 202510: Tests for LabTestResults API endpoints
 @baseUrl = http://localhost:8000/api
 
 ###
@@ -9,29 +10,25 @@ Accept: application/json
 ###
 # 🔍 Hae yksi tulos ID:n perusteella
 # Vaihda ID halutuksi (esim. 1)
-GET {{baseUrl}}/labtestresults/2033
+GET {{baseUrl}}/labtestresults/633
 Accept: application/json
 
 ###
 # 🔎 Hae kaikki labratulokset tietylle henkilölle
-GET http://localhost:8000/api/labtestresults/person/TEST123
+GET http://localhost:8000/api/labtestresults/search?personID=TEST123
 Accept: application/json
 
-###
-# 🔎 Hae henkilön tietty tulos ID:llä
-GET http://localhost:8000/api/labtestresults/person/TEST123/id/2033
-Accept: application/json
 
 ###
 # 🔎 Hae henkilön kaikki tulokset aikaväliltä
 # Päivämäärät annetaan muodossa YYYY-MM-DD tai YYYY-MM-DDTHH:MM:SS
-GET http://localhost:8000/api/labtestresults/person/TEST123/dates/2025-01-01/2025-12-31
+GET http://localhost:8000/api/labtestresults/search?personID=TEST123&startdate=2025-01-01&enddate=2025-12-31
 Accept: application/json
 
 ###
 # 🔎 Hae henkilön tulokset analyysinimen osalla
 # Esim. hakee kaikki, joissa AnalysisName sisältää "TS"
-GET http://localhost:8000/api/labtestresults/person/TEST123/analysis/Kol
+GET http://localhost:8000/api/labtestresults/search?personID=TEST123&searchTerm=Kol
 Accept: application/json
 
 
@@ -51,11 +48,11 @@ Accept: application/json
 
 {
   "PersonID": "TEST123",
-  "SampleDate": "2025-10-11",
-  "CombinedName": "TESTIGlukoosi, verinäyte",
-  "AnalysisName": "TESTIGlukoosi",
-  "AnalysisShortName": "TESTGlu",
-  "AnalysisCode": "TESTGLU",
+  "SampleDate": "2025-10-26 09:20:00",
+  "CombinedName": "Glukoosi, verinäyte",
+  "AnalysisName": "Glukoosi",
+  "AnalysisShortName": "Glu",
+  "AnalysisCode": "12345",
   "Result": "5.3",
   "MinimumValue": "4.0",
   "MaximumValue": "6.0",
@@ -63,10 +60,11 @@ Accept: application/json
   "Unit": "mmol/l",
   "Cost": 12.50,
   "CompanyUnitName": "LabTest Oy",
-  "AdditionalInfo": "TESTI paastotesti",
-  "AdditionalText": "TESTI Aamupaasto 10h",
-  "ResultAddedDate": "2025-10-11 09:00:00",
-  "ToMapDate": "2025-10-11 09:00:00"
+  "AdditionalInfo": "paastotesti",
+  "AdditionalText": "Aamupaasto 10h"
+  //,
+  //"ResultAddedDate": "2025-10-11 09:00:00",
+  //"ToMapDate": "2025-10-11 09:00:00"
 }
 
 
@@ -86,5 +84,5 @@ Accept: application/json
 ###
 # 🗑️ Poista tulos (DELETE)
 # Vaihda ID oikeaksi
-#DELETE {{baseUrl}}/labtestresults/2032
-#Accept: application/json
+//DELETE {{baseUrl}}/labtestresults/2108
+//Accept: application/json

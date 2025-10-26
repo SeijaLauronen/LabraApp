@@ -1,11 +1,10 @@
 <?php
+// SL 202510:  Model for labresults table
 
 namespace App\Models;
 
 //use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-
-// *SL  Model for labresults table
 
 class LabTestResult extends Model
 {
