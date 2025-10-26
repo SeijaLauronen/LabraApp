@@ -22,20 +22,20 @@ Projektin tärkeimmät koodikohdat on myös merkitty tunnisteella: // SL 202510:
 | Polku | Kuvaus |
 |:------|:--------|
 | **LabraBackend** | Laravel-pohjainen backend |
-| ├─ `app/Http/Controllers/LabTestResultController.php` | Controller – käsittelee tietokantaan menevän ja sieltä tulevan datan |
-| ├─ `app/Models/LabTestResult.php` | Eloquent-malli `labtestresults`-taululle |
-| ├─ `database/migrations/2025_10_13_082633_create_labtestresults_table.php` | Migraatio, joka luo taulun jos sitä ei ole |
-| ├─ `routes/api.php` | API-reitit `LabTestResult`-controllerille |
-| ├─ `tests/tests.http` | REST Client -testit API-päätepisteille |
-| ├─ `.env.example` | Kopioi nimellä `.env` ja aseta tietokanta-arvot |
-| └─ `storage/logs/laravel.log` | Laravel-lokitiedosto |
+|  `app/Http/Controllers/LabTestResultController.php` | Controller – käsittelee tietokantaan menevän ja sieltä tulevan datan |
+|  `app/Models/LabTestResult.php` | Eloquent-malli `labtestresults`-taululle |
+|  `database/migrations/2025_10_13_082633_create_labtestresults_table.php` | Migraatio, joka luo taulun jos sitä ei ole |
+|  `routes/api.php` | API-reitit `LabTestResult`-controllerille |
+|  `tests/tests.http` | REST Client -testit API-päätepisteille |
+|  `.env.example` | Kopioi nimellä `.env` ja aseta tietokanta-arvot |
+|  `storage/logs/laravel.log` | Laravel-lokitiedosto |
 | **labra-frontend** | React-pohjainen käyttöliittymä |
-| ├─ `src/App.jsx` | Pääsovelluskomponentti |
-| ├─ `src/LabResults.jsx` | Labratulosten UI-komponentti |
-| ├─ `src/components/LabTestResultHeader.jsx` | Taulukon otsikkokomponentti (vaakasuora/pystysuora) |
-| ├─ `src/components/LabTestResultRow.jsx` | Yksittäisen rivin komponentti |
-| ├─ `src/components/LabTestResultsEditor.jsx` | Muokkauskomponentti tulosten syöttöön |
-| └─ `src/definitions/labfields.js` | Kenttämäärittelyt labratuloksille |
+|  `src/App.jsx` | Pääsovelluskomponentti |
+|  `src/LabResults.jsx` | Labratulosten UI-komponentti |
+|  `src/components/LabTestResultHeader.jsx` | Taulukon otsikkokomponentti (vaakasuora/pystysuora) |
+|  `src/components/LabTestResultRow.jsx` | Yksittäisen rivin komponentti |
+|  `src/components/LabTestResultsEditor.jsx` | Muokkauskomponentti tulosten syöttöön |
+|  `src/definitions/labfields.js` | Kenttämäärittelyt labratuloksille |
 
 ---
 
@@ -140,16 +140,16 @@ Frontend toimii oletuksena osoitteessa:
 |:-------|:---------|:-------|
 | **GET** | `/api/labtestresults` | Hae kaikki laboratoriotulokset (index). |
 | **GET** | `/api/labtestresults/{id}` | Hae yksittäinen tulos ID:n perusteella (show). |
-| **GET** | `/api/labtestresults/search` | Joukkohaku, vaatii `personID` query‑parametrin.<br>Tukee lisäparametreja:<br>• `startDate`, `endDate`<br>• `searchTerm`<br>• `sortField`, `sortOrder`<br>• `perPage`<br><br>Esimerkki:<br>`/api/labtestresults/search?`<br>`personID=TEST123&`<br>`startDate=2025-10-01&`<br>`endDate=2025-10-31&`<br>`searchTerm=glukoosi` |
+| **GET** | `/api/labtestresults/search` | Joukkohaku, vaatii `personID` query‑parametrin.<br>Tukee lisäparametreja:<br>• `startDate`, `endDate`<br>• `searchTerm`<br>• `sortField`, `sortOrder`<br>• `perPage`<br><br>Esimerkki:<br>`/api/labtestresults/search?`<br>`personID=TEST123&`<br>`startDate=2025-10-01&`<br>`endDate=2025-10-31&`<br>`searchTerm=gluk` |
 | **POST** | `/api/labtestresults` | Lisää uusi laboratoriotulos (store). |
 | **PUT** | `/api/labtestresults/{id}` | Päivitä olemassa oleva tulos (update). |
 | **DELETE** | `/api/labtestresults/{id}` | Poista tulos (destroy). |
 
-Huom: reititys kannattaa määritellä siten, että spesifiset reitit (esim. `/labtestresults/search`) ovat ennen `Route::apiResource('labtestresults', ...)` tiedostossa `routes/api.php`, jotta `/search` ei huku resurssireittien alle.
+Huom: reititys määritelty siten, että spesifiset reitit (esim. `/labtestresults/search`) ovat ennen `Route::apiResource('labtestresults', ...)` tiedostossa `routes/api.php`, jotta `/search` ei huku resurssireittien alle.
 
 Esimerkki hakupyynnöstä:
 ```
-GET /api/labtestresults/search?personID=TEST123&startDate=2025-10-01&endDate=2025-10-31&searchTerm=glukoosi
+GET /api/labtestresults/search?personID=TEST123&startDate=2025-10-01&endDate=2025-10-31&searchTerm=gluk
 ```
 ---
 
