@@ -13,6 +13,29 @@ LabraApp/
 ├── LabraBackend/      # Laravel API (MySQL, Eloquent ORM)
 └── labra-frontend/    # React (Vite) käyttöliittymä, Axios-pyynnöt API:in
 ```
+---
+
+## 🧩 Tärkeimmät tiedostot
+
+Projektin tärkeimmät koodikohdat on myös merkitty tunnisteella: // SL 202510:
+
+| Polku | Kuvaus |
+|:------|:--------|
+| **LabraBackend** | Laravel-pohjainen backend |
+| ├─ `app/Http/Controllers/LabTestResultController.php` | Controller – käsittelee tietokantaan menevän ja sieltä tulevan datan |
+| ├─ `app/Models/LabTestResult.php` | Eloquent-malli `labtestresults`-taululle |
+| ├─ `database/migrations/2025_10_13_082633_create_labtestresults_table.php` | Migraatio, joka luo taulun jos sitä ei ole |
+| ├─ `routes/api.php` | API-reitit `LabTestResult`-controllerille |
+| ├─ `tests/tests.http` | REST Client -testit API-päätepisteille |
+| ├─ `.env.example` | Kopioi nimellä `.env` ja aseta tietokanta-arvot |
+| └─ `storage/logs/laravel.log` | Laravel-lokitiedosto |
+| **labra-frontend** | React-pohjainen käyttöliittymä |
+| ├─ `src/App.jsx` | Pääsovelluskomponentti |
+| ├─ `src/LabResults.jsx` | Labratulosten UI-komponentti |
+| ├─ `src/components/LabTestResultHeader.jsx` | Taulukon otsikkokomponentti (vaakasuora/pystysuora) |
+| ├─ `src/components/LabTestResultRow.jsx` | Yksittäisen rivin komponentti |
+| ├─ `src/components/LabTestResultsEditor.jsx` | Muokkauskomponentti tulosten syöttöön |
+| └─ `src/definitions/labfields.js` | Kenttämäärittelyt labratuloksille |
 
 ---
 

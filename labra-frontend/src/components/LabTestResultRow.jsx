@@ -1,6 +1,6 @@
+// SL 202510: Lab Test Result Table Row Component
 import React from 'react';
 import { labFields } from '../definitions/labfields';
-// *SL Lab Test Result Table Row Component
 
 const LabTestResultRow = ({ row, onToggleSelect, isSelected, mode, onDelete, onFieldChange, orientation = 'horizontal' }) => {
     const editable = mode !== "show";

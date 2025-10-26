@@ -1,7 +1,7 @@
+// SL 202510: Lab Test Result Table Header Component, but makes also vertical data for vertical tables
+// TODO: name does not correspond the action any more
 import React from 'react';
 import { labFields } from '../definitions/labfields';
-// *SL Lab Test Result Table Header Component
-
 
 const LabTestResultHeader = ({ mode, handleSort, orientation = 'horizontal', data = [], onFieldChange = () => {}, onDelete = () => {} }) => {
     const editable = mode !== "show";

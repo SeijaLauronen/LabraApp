@@ -1,3 +1,4 @@
+// SL 202510: Definitions for lab test result fields
 export const labFields = [
     { key: "ID", label: "ID", type: "text", sortable: true, editable: false },
     { key: "SampleDate", label: "Näyte pvm", type: "datetime-local", sortable: true, editable: true },

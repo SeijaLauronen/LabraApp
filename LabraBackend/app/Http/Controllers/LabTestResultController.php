@@ -1,5 +1,5 @@
 <?php
-// SL 202510: for handling data going into the database
+// SL 202510: Controller for handling data going into the database
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
@@ -135,8 +135,6 @@ class LabTestResultController extends Controller
             throw $e;
         }
     }
-
-
 
 
     /**

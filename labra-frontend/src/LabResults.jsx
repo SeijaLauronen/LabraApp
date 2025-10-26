@@ -1,12 +1,12 @@
+// SL 202510:  Lab Results UI Component
+// TODO: when personID changes, clear results
 import React, { useState } from "react";
-import { useEffect } from "react";
 import axios from "axios";
 import LabTestResultRow from "./components/LabTestResultRow.jsx";
 import LabTestResultHeader from './components/LabTestResultHeader';
 import { labFields, copyFields, newRowDefaults } from "./definitions/labfields.js";
 import LabTestResultsEditor from './components/LabTestResultsEditor.jsx';
 
-// *SL  Lab Results UI Component
 const LabResults = () => {
   const [personID, setPersonID] = useState("");
   const [startDate, setStartDate] = useState("");
@@ -27,19 +27,6 @@ const LabResults = () => {
   const [showEditForm, setShowEditForm] = useState(false);
 
   const baseUrl = "http://localhost:8000/api/labtestresults";
-
-  /*
-  
-    useEffect(() => {
-      if (personID) {
-        axios
-          .get(`http://localhost:8000/api/labtestresults/person/${personID}`)
-          .then(res => setResults(res.data))
-          .catch(err => console.error(err));
-      }
-    }, [personID]);
-  */
-
 
 
   // New rows (not based on existing results)
@@ -235,10 +222,7 @@ const LabResults = () => {
     return 0;
   });
 
-
   return (
-
-
 
     <div style={{ padding: "20px", fontFamily: "Arial" }}>
 
@@ -259,9 +243,7 @@ const LabResults = () => {
 
         <br />
 
-
       </div>
-
 
       {showNewForm && newRows.length > 0 && (
         <LabTestResultsEditor
@@ -277,7 +259,6 @@ const LabResults = () => {
         />
       )}
 
-
       {showCopiedForm && copiedRows.length > 0 && (
         <LabTestResultsEditor
           title="Muokkaa kopioituja rivejä"
@@ -292,7 +273,6 @@ const LabResults = () => {
         />
       )}
 
-
       {showEditForm && editedRows.length > 0 && (
         <LabTestResultsEditor
           title="Muokkaa valittuja rivejä"
@@ -306,8 +286,6 @@ const LabResults = () => {
           saveLabel="Tallenna muutokset"
         />
       )}
-
-
 
       <div>
 
@@ -370,19 +348,11 @@ const LabResults = () => {
                 onToggleSelect={() => toggleRowSelection(r.ID)}
                 isSelected={selectedRows.includes(r.ID)}
                 mode='show'
-              /*
-              onDelete={() => {
-                //TODO täm ei toimi, ei valitse riviä ennen poistoa. Muutenkin turha toiminto tässä tämä poisto
-                setSelectedRows(selectedRows.filter(id => id !== r.ID));
-                deleteSelected(); // Voit myös kutsua deleteSelected suoraan
-              }}
-                */
               />
             ))}
           </tbody>
         </table>
       )}
-
 
       {!loading && !error && results.length === 0 && <p>Ei tuloksia</p>}
     </div>
