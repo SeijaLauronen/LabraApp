@@ -6,6 +6,7 @@ import LabTestResultRow from "./components/LabTestResultRow.jsx";
 import LabTestResultHeader from './components/LabTestResultHeader';
 import { labFields, copyFields, newRowDefaults } from "./definitions/labfields.js";
 import LabTestResultsEditor from './components/LabTestResultsEditor.jsx';
+import LabTestImport from "./components/LabtestImport.jsx";
 
 const LabResults = () => {
   const [personID, setPersonID] = useState("");
@@ -25,6 +26,8 @@ const LabResults = () => {
 
   const [editedRows, setEditedRows] = useState([]);
   const [showEditForm, setShowEditForm] = useState(false);
+
+  const [showImport, setShowImport] = useState(false);
 
   const baseUrl = "http://localhost:8000/api/labtestresults";
 
@@ -241,120 +244,141 @@ const LabResults = () => {
           if (newRows.length === 0) addNewRow();
         }} style={{ marginLeft: '8px' }}>Lisää uusi tulos</button>
 
+        <button
+          onClick={() => setShowImport(true)}
+          style={{ marginLeft: "8px" }}
+        >
+          Tuo useita tuloksia
+        </button>
+
         <br />
 
       </div>
 
-      {showNewForm && newRows.length > 0 && (
-        <LabTestResultsEditor
-          title="Lisää uusia tuloksia"
-          rows={newRows}
-          setRows={setNewRows}
-          personID={personID}
-          onSave={saveNewRows}
-          onCancel={() => { setNewRows([]); setShowNewForm(false); }}
-          allowAdd={true}
-          allowDelete={true}
-          saveLabel="Tallenna uudet rivit"
-        />
+      {showImport ? (
+        <div>
+          <LabTestImport personID={personID}/>
+          <button onClick={() => setShowImport(false)} style={{ marginTop: "10px" }}>
+            🔙 Palaa labratuloksiin
+          </button>
+        </div>
+      ) : (
+        <>
+
+          {showNewForm && newRows.length > 0 && (
+            <LabTestResultsEditor
+              title="Lisää uusia tuloksia"
+              rows={newRows}
+              setRows={setNewRows}
+              personID={personID}
+              onSave={saveNewRows}
+              onCancel={() => { setNewRows([]); setShowNewForm(false); }}
+              allowAdd={true}
+              allowDelete={true}
+              saveLabel="Tallenna uudet rivit"
+            />
+          )}
+
+          {showCopiedForm && copiedRows.length > 0 && (
+            <LabTestResultsEditor
+              title="Muokkaa kopioituja rivejä"
+              rows={copiedRows}
+              setRows={setCopiedRows}
+              personID={personID}
+              onSave={saveCopiedRows}
+              onCancel={() => { setCopiedRows([]); setShowCopiedForm(false); }}
+              allowAdd={true}
+              allowDelete={true}
+              saveLabel="Tallenna uudet rivit"
+            />
+          )}
+
+          {showEditForm && editedRows.length > 0 && (
+            <LabTestResultsEditor
+              title="Muokkaa valittuja rivejä"
+              rows={editedRows}
+              setRows={setEditedRows}
+              personID={personID}
+              onSave={saveEditedRows}
+              onCancel={() => { setEditedRows([]); setShowEditForm(false); }}
+              allowAdd={false}         // no new rows when editing existing ones
+              allowDelete={true}
+              saveLabel="Tallenna muutokset"
+            />
+          )}
+
+          <div>
+
+            <h3>Hakuehdot</h3>
+            <label>Analyysin nimi sisältää: </label>
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              style={{ marginRight: "10px" }}
+            />
+
+            <label>Alkupäivä: </label>
+            <input
+              type="date"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              style={{ marginRight: "10px" }}
+            />
+
+            <label>Loppupäivä: </label>
+            <input
+              type="date"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+              style={{ marginRight: "10px" }}
+            />
+
+            <button onClick={handleSearch}>Hae tulokset</button>
+          </div>
+
+          <div style={{ marginBottom: "15px" }}>
+            <button onClick={toggleSelectAll}>
+              {selectedRows.length === results.length ? "Poista valinnat" : "Valitse kaikki"}
+            </button>
+            <button onClick={deleteSelected} >
+              Poista valitut
+            </button>
+            <button onClick={copySelected} >
+              Kopioi valitut uusien pohjaksi
+            </button>
+            <button onClick={editSelected} >
+              Muuta valitut
+            </button>
+          </div>
+
+          {loading && <p>Haetaan...</p>}
+          {error && <p style={{ color: "red" }}>{error}</p>}
+
+          {results.length > 0 && (
+            <table border="1" cellPadding="6" style={{ cursor: "pointer" }}>
+              <thead>
+                <LabTestResultHeader mode='show' handleSort={handleSort} />
+              </thead>
+              <tbody>
+                {sortedResults.map((r) => (
+
+                  <LabTestResultRow
+                    key={r.ID}
+                    row={r}
+                    onToggleSelect={() => toggleRowSelection(r.ID)}
+                    isSelected={selectedRows.includes(r.ID)}
+                    mode='show'
+                  />
+                ))}
+              </tbody>
+            </table>
+          )}
+
+          {!loading && !error && results.length === 0 && <p>Ei tuloksia</p>}
+        </>
       )}
 
-      {showCopiedForm && copiedRows.length > 0 && (
-        <LabTestResultsEditor
-          title="Muokkaa kopioituja rivejä"
-          rows={copiedRows}
-          setRows={setCopiedRows}
-          personID={personID}
-          onSave={saveCopiedRows}
-          onCancel={() => { setCopiedRows([]); setShowCopiedForm(false); }}
-          allowAdd={true}
-          allowDelete={true}
-          saveLabel="Tallenna uudet rivit"
-        />
-      )}
-
-      {showEditForm && editedRows.length > 0 && (
-        <LabTestResultsEditor
-          title="Muokkaa valittuja rivejä"
-          rows={editedRows}
-          setRows={setEditedRows}
-          personID={personID}
-          onSave={saveEditedRows}
-          onCancel={() => { setEditedRows([]); setShowEditForm(false); }}
-          allowAdd={false}         // no new rows when editing existing ones
-          allowDelete={true}
-          saveLabel="Tallenna muutokset"
-        />
-      )}
-
-      <div>
-
-        <h3>Hakuehdot</h3>
-        <label>Analyysin nimi sisältää: </label>
-        <input
-          type="text"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          style={{ marginRight: "10px" }}
-        />
-
-        <label>Alkupäivä: </label>
-        <input
-          type="date"
-          value={startDate}
-          onChange={(e) => setStartDate(e.target.value)}
-          style={{ marginRight: "10px" }}
-        />
-
-        <label>Loppupäivä: </label>
-        <input
-          type="date"
-          value={endDate}
-          onChange={(e) => setEndDate(e.target.value)}
-          style={{ marginRight: "10px" }}
-        />
-
-        <button onClick={handleSearch}>Hae tulokset</button>
-      </div>
-      <div style={{ marginBottom: "15px" }}>
-        <button onClick={toggleSelectAll}>
-          {selectedRows.length === results.length ? "Poista valinnat" : "Valitse kaikki"}
-        </button>
-        <button onClick={deleteSelected} >
-          Poista valitut
-        </button>
-        <button onClick={copySelected} >
-          Kopioi valitut uusien pohjaksi
-        </button>
-        <button onClick={editSelected} >
-          Muuta valitut
-        </button>
-      </div>
-
-      {loading && <p>Haetaan...</p>}
-      {error && <p style={{ color: "red" }}>{error}</p>}
-
-      {results.length > 0 && (
-        <table border="1" cellPadding="6" style={{ cursor: "pointer" }}>
-          <thead>
-            <LabTestResultHeader mode='show' handleSort={handleSort} />
-          </thead>
-          <tbody>
-            {sortedResults.map((r) => (
-
-              <LabTestResultRow
-                key={r.ID}
-                row={r}
-                onToggleSelect={() => toggleRowSelection(r.ID)}
-                isSelected={selectedRows.includes(r.ID)}
-                mode='show'
-              />
-            ))}
-          </tbody>
-        </table>
-      )}
-
-      {!loading && !error && results.length === 0 && <p>Ei tuloksia</p>}
     </div>
   );
 };

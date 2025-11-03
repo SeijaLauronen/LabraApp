@@ -31,3 +31,6 @@ Route::get('labtestresults/search', [LabTestResultController::class, 'search']);
 
 // This line automatically creates RESTful routes for the labtestresults resource (GET, POST, PUT, DELETE)
 Route::apiResource('labtestresults', LabTestResultController::class);
+
+// Route for importing lab test results
+Route::post('/labtestresults/import', [LabTestResultController::class, 'import']);

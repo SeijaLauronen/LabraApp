@@ -161,4 +161,51 @@ class LabTestResultController extends Controller
     {
         return LabTestResult::destroy($id);
     }
+
+
+    // TODO korvaa tämä käyttämään jo olemassa olevaa storea, tarkemmin paluuviestit
+    public function import(Request $request)
+    {
+        $data = $request->all();
+        \Log::debug('Saapunut data importille:', $request->all());
+
+        try {
+            foreach ($data as $index => $row) {
+                $personId = trim($row['PersonID'] ?? '');
+
+                if (empty($personId)) {
+                    \Log::warning("Rivi $index ohitettu: PersonID puuttuu", $row);
+                    return response()->json([
+                        'error' => "Rivillä $index puuttuu PersonID, tuonti keskeytettiin."
+                    ], 400);
+                }
+
+                LabTestResult::create([
+                    'PersonID' => $personId,
+                    'SampleDate' => $row['SampleDate'] ?? null,
+                    'CompanyUnitName' => $row['CompanyUnitName'] ?? null,
+                    'AnalysisName' => $row['AnalysisName'] ?? null,
+                    'Result' => $row['Result'] ?? null,
+                    'MinimumValue' => $row['MinimumValue'] ?? null,
+                    'MaximumValue' => $row['MaximumValue'] ?? null,
+                    'AdditionalText' => $row['AdditionalText'] ?? null,
+                ]);
+            }
+        } catch (\Exception $e) {
+            \Log::error('Import error:', [
+                'message' => $e->getMessage(),
+                'line' => $e->getLine(),
+                'file' => $e->getFile()
+            ]);
+            //throw $e;
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Tiedot tallennettu'
+        ], 200);
+    }
+
 }
