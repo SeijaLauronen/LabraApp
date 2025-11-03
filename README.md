@@ -142,7 +142,7 @@ Frontend toimii oletuksena osoitteessa:
 | **GET** | `/api/labtestresults/{id}` | Hae yksittäinen tulos ID:n perusteella (show). |
 | **GET** | `/api/labtestresults/search` | Joukkohaku, vaatii `personID` query‑parametrin.<br>Tukee lisäparametreja:<br>• `startDate`, `endDate`<br>• `searchTerm`<br>• `sortField`, `sortOrder`<br>• `perPage`<br><br>Esimerkki:<br>`/api/labtestresults/search?`<br>`personID=TEST123&`<br>`startDate=2025-10-01&`<br>`endDate=2025-10-31&`<br>`searchTerm=gluk` |
 | **POST** | `/api/labtestresults` | Lisää uusi laboratoriotulos (store). |
-| **POST** | `/api/labtestresults/import` | Tuo useita laboratoriotuloksia kerralla.<br>Data lähetetään JSON-taulukkona, esim:<br>```json<br>[{"PersonID":"test123","SampleDate":"2025-03-27 00:00:00","AnalysisName":"Ferritiini (Ferrit)","Result":"347"}]<br>```<br>Palauttaa: `{ "success": true }` jos tuonti onnistuu. |
+| **POST** | `/api/labtestresults/import` | Tuo useita laboratoriotuloksia kerralla.<br>Data lähetetään JSON-taulukkona, esim:<br>```[{"PersonID":"test123","SampleDate":"2025-03-27 00:00:00","AnalysisName":"Ferritiini (Ferrit)","Result":"347"}]```<br>Palauttaa: `{ "success": true }` jos tuonti onnistuu. |
 | **PUT** | `/api/labtestresults/{id}` | Päivitä olemassa oleva tulos (update). |
 | **DELETE** | `/api/labtestresults/{id}` | Poista tulos (destroy). |
 
