@@ -1,151 +1,133 @@
+// SL 202510 - Import UI with parser selection
+
 import React, { useState } from "react";
 import axios from "axios";
-import { parseDateToMySQL } from "../utils/dates";
-
-const LabTestImport = ({ personID: initialPersonID = "" }) => {
-    const [personID, setPersonID] = useState(initialPersonID);
-    const [rawText, setRawText] = useState("");
-    const [parsedData, setParsedData] = useState([]);
-    const [errorMessage, setErrorMessage] = useState("");
-    const [successMessage, setSuccessMessage] = useState("");
+import { parseExcel, parseOmakanta } from "../utils/parseLabData";
 
 
-    // 1. Parse tab-separated values from textarea
-    const parseData = () => {
-        if (!rawText.trim()) return alert("Liitä ensin data tekstikenttään!");
-        const rows = rawText.trim().split("\n").map(line => line.split("\t"));
-        const parsed = rows.map(cols => ({
-            PersonID: personID,
-            SampleDate: parseDateToMySQL(cols[0]),
-            CompanyUnitName: cols[1],
-            AnalysisName: cols[2],
-            Result: cols[3],
-            MinimumValue: cols[4],
-            MaximumValue: cols[5],
-            AdditionalText: cols[6] || ""
-        }));
+const LabTestImport = ({ personID: initialPersonID = "", onClose }) => {
+  const [personID, setPersonID] = useState(initialPersonID);
+  const [mode, setMode] = useState("excel"); // "excel" | "omakanta" | "other"
+  const [rawText, setRawText] = useState("");
+  const [parsedData, setParsedData] = useState([]);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
+
+  const handlePreview = () => {
+    setErrorMessage("");
+    setSuccessMessage("");
+    if (!personID.trim()) {
+      setErrorMessage("Anna ensin PersonID.");
+      return;
+    }
+    if (!rawText.trim()) {
+      setErrorMessage("Liitä ensin data.");
+      return;
+    }
+
+    try {
+      let parsed = [];
+      if (mode === "excel") parsed = parseExcel(rawText, personID);
+      else if (mode === "omakanta") parsed = parseOmakanta(rawText, personID);
+      else {
+        // placeholder: other-mode not yet implemented, fallback to excel
+        parsed = parseExcel(rawText, personID);
+      }
+
+      if (!parsed || parsed.length === 0) {
+        setErrorMessage("Esikatselussa ei löytynyt rivejä. Tarkista syöte ja valinta.");
+        setParsedData([]);
+      } else {
         setParsedData(parsed);
-    };
+        setSuccessMessage(`Esikatselussa ${parsed.length} riviä (mode: ${mode}).`);
+      }
+    } catch (err) {
+      console.error(err);
+      setErrorMessage("Virhe esikatselussa: " + (err.message || ""));
+      setParsedData([]);
+    }
+  };
 
-    // 2. Send parsed data to backend
-    const saveData = async () => {
-        if (parsedData.length === 0) return alert("Ei tallennettavaa dataa!");
-        if (!personID.trim()) return alert("Anna ensin henkilön ID!");
+  const handleImport = async () => {
+    setErrorMessage("");
+    setSuccessMessage("");
+    if (parsedData.length === 0) {
+      setErrorMessage("Ei tallennettavaa dataa. Tee ensin esikatselu.");
+      return;
+    }
 
-        try {
-            await axios.post("http://localhost:8000/api/labtestresults/import", parsedData);
-            alert(`Tallennettu ${parsedData.length} riviä onnistuneesti!`);
-            setParsedData([]);
-            setRawText("");
-        } catch (err) {
-            console.error(err);
-            alert("Virhe tallennuksessa!");
-        }
+    try {
+      const resp = await axios.post("http://localhost:8000/api/labtestresults/import", parsedData);
+      if (resp.status === 200) {
+        setSuccessMessage(`Tallennettu ${parsedData.length} riviä.`);
+        setParsedData([]);
+        setRawText("");
+      } else {
+        setErrorMessage("Palvelin palautti virheen.");
+      }
+    } catch (err) {
+      console.error(err);
+      setErrorMessage(err.response?.data?.error || "Virhe tuonnissa.");
+    }
+  };
 
-    };
+  return (
+    <div style={{ marginTop: 10 }}>
+      <h3>📋 Tuo labratiedot</h3>
 
-    // 2. Send parsed data to backend
-    const handleImport = async () => {
-        setErrorMessage("");
-        setSuccessMessage("");
+      <div style={{ marginBottom: 8 }}>
+        <label style={{ marginRight: 8 }}>PersonID:</label>
+        <input value={personID} onChange={(e) => setPersonID(e.target.value)} style={{ marginRight: 12 }} />
+        <label style={{ marginRight: 8 }}>Mode:</label>
+        <select value={mode} onChange={(e) => setMode(e.target.value)} style={{ marginRight: 12 }}>
+          <option value="excel">Hyvinvointi-Excel</option>
+          <option value="omakanta">Omakanta</option>
+          <option value="other">Muu (ei vielä toteutettu)</option>
+        </select>
+        <button onClick={() => { setParsedData([]); setRawText(""); setErrorMessage(""); setSuccessMessage(""); }}>Tyhjennä</button>
+      </div>
 
-        try {
-            const response = await axios.post("http://localhost:8000/api/labtestresults/import", parsedData);
+      <textarea
+        rows={10}
+        value={rawText}
+        onChange={(e) => setRawText(e.target.value)}
+        placeholder="Liitä data tähän..."
+        style={{ width: "100%", fontFamily: "monospace" }}
+      />
 
-            if (response.data.success) {
-                setSuccessMessage(`Tallennettu ${parsedData.length} riviä onnistuneesti!`);
-                //alert(`Tallennettu ${parsedData.length} riviä onnistuneesti!`);
-                //setParsedData([]); // tyhjennetään taulukko
-            }
-        } catch (error) {
-            console.error("Tuontivirhe:", error);
+      <div style={{ marginTop: 8 }}>
+        <button onClick={handlePreview} style={{ marginRight: 8 }}>Esikatsele</button>
+        <button onClick={handleImport} disabled={parsedData.length === 0} style={{ marginRight: 8 }}>Tallenna</button>        
+      </div>
 
-            if (error.response && error.response.data && error.response.data.error) {
-                setErrorMessage(error.response.data.error);
-            } else {
-                setErrorMessage("Virhe tietojen tuonnissa. Tarkista syöte tai yhteys.");
-            }
-        }
-    };
+      {errorMessage && <div style={{ color: "red", marginTop: 8 }}>⚠️ {errorMessage}</div>}
+      {successMessage && <div style={{ color: "green", marginTop: 8 }}>✅ {successMessage}</div>}
 
-
-    return (
-        <div style={{ padding: "20px" }}>
-            <h2>Labratietojen tuonti (copy–paste Excelistä)</h2>
-
-            <div style={{ marginBottom: "10px" }}>
-                <label>PersonID: </label>
-                <input
-                    type="text"
-                    value={personID}
-                    onChange={(e) => setPersonID(e.target.value)}
-                    placeholder="Anna henkilön tunnus"
-                    style={{ width: "150px", marginRight: "20px" }}
-                />
-            </div>
-
-            <textarea
-                rows="10"
-                cols="100"
-                placeholder="Liitä tähän Excelistä kopioidut rivit (sarakkeet sarkaimella eroteltuna)..."
-                value={rawText}
-                onChange={(e) => setRawText(e.target.value)}
-            />
-
-            <br />
-            <button onClick={parseData}>Esikatsele</button>
-
-            {parsedData.length > 0 && (
-                <>
-                    <h3 style={{ marginTop: "20px" }}>
-                        Esikatselu ({parsedData.length} riviä)
-                    </h3>
-                    <table border="1" cellPadding="6" width="100%">
-                        <thead>
-                            <tr style={{ backgroundColor: "#f0f0f0" }}>
-                                <th>Pvm</th>
-                                <th>Yritys</th>
-                                <th>Analyysi</th>
-                                <th>Tulos</th>
-                                <th>Min</th>
-                                <th>Max</th>
-                                <th>Lisätieto</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {parsedData.map((row, i) => (
-                                <tr key={i}>
-                                    <td>{row.SampleDate}</td>
-                                    <td>{row.CompanyUnitName}</td>
-                                    <td>{row.AnalysisName}</td>
-                                    <td>{row.Result}</td>
-                                    <td>{row.MinimumValue}</td>
-                                    <td>{row.MaximumValue}</td>
-                                    <td>{row.AdditionalText}</td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                    <button style={{ marginTop: "10px" }} onClick={handleImport}>
-                        💾 Tallenna kaikki tietokantaan
-                    </button>
-
-                    {errorMessage && (
-                        <div style={{ color: "red", marginBottom: "10px" }}>
-                            ⚠️ {errorMessage}
-                        </div>
-                    )}
-
-                    {successMessage && (
-                        <div style={{ color: "green", marginBottom: "10px" }}>
-                            ✅ {successMessage}
-                        </div>
-                    )}
-
-                </>
-            )}
-        </div>
-    );
+      {parsedData.length > 0 && (
+        <table border="1" cellPadding="4" style={{ marginTop: 12, width: "100%", borderCollapse: "collapse" }}>
+          <thead>
+            <tr style={{ background: "#f0f0f0" }}>
+              <th>Pvm</th><th>Nimi</th><th>Tulos</th><th>Yksikkö</th><th>Min</th><th>Max</th><th>Viite</th><th>Lisätieto</th>
+            </tr>
+          </thead>
+          <tbody>
+            {parsedData.map((r,i) => (
+              <tr key={i}>
+                <td>{r.SampleDate}</td>
+                <td>{r.AnalysisName}</td>
+                <td>{r.Result}</td>
+                <td>{r.Unit}</td>
+                <td>{r.MinimumValue}</td>
+                <td>{r.MaximumValue}</td>
+                <td>{r.ValueReference}</td>
+                <td>{r.AdditionalText}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </div>
+  );
 };
 
 export default LabTestImport;

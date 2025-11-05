@@ -1,4 +1,7 @@
-// apufunktio: muuntaa esim. "27.3.2024" tai "27.3.2024 14:30" -> "2024-03-27 14:30:00"
+// SL 202511: Date parsing
+// assistant function: converts e.g. "27.3.2024" or "27.3.2024 14:30" -> "2024-03-27 14:30:00"
+// TODO pvm tarkistukset ja esim 11/24/2024, formaatin muoto parametrinä...
+// TODO Testaa kunnolla eri syötteillä!
 export function parseDateToMySQL(s) {
   if (!s) return null;
   s = s.toString().trim();
