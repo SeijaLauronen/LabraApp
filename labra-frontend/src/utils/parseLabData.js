@@ -183,3 +183,13 @@ export function parseOmakanta(text, personID) {
 
   return parsed;
 }
+
+export function parseGenericLabData(text) {
+  // Poistetaan tyhjät rivit ja jaetaan rivit
+  const rows = text.trim().split(/\r?\n/).filter(r => r.trim() !== "");
+
+  // Yritetään päätellä erotinmerkki (sarkain tai pilkku)
+  const delimiter = text.includes("\t") ? "\t" : ",";
+
+  return rows.map(line => line.split(delimiter).map(cell => cell.trim()));
+}

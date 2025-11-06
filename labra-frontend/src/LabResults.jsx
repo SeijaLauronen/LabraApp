@@ -236,7 +236,8 @@ const LabResults = () => {
         <input
           type="text"
           value={personID}
-          onChange={(e) => setPersonID(e.target.value)}
+          onChange={(e) => setPersonID(e.target.value.trimStart())}
+          onBlur={(e) => setPersonID(e.target.value.trim())}
           style={{ marginRight: "10px" }}
         />
         <button onClick={() => {
@@ -257,7 +258,7 @@ const LabResults = () => {
 
       {showImport ? (
         <div>
-          <LabTestImport personID={personID}/>
+          <LabTestImport personID={personID} />
           <button onClick={() => setShowImport(false)} style={{ marginTop: "10px" }}>
             🔙 Palaa labratuloksiin
           </button>

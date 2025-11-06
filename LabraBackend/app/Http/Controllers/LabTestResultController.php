@@ -49,11 +49,19 @@ class LabTestResultController extends Controller
                 'ToMapDate' => 'nullable|date'
             ]);
 
+            // Trim to avoid trailing spaces
+            $data['PersonID'] = trim($data['PersonID']);
+
+            if ($data['PersonID'] === '') {
+                return response()->json(['error' => 'PersonID ei voi olla tyhjä.'], 400);
+            }
+
             // Add  ResultAddedDate
             $data['ResultAddedDate'] = now();
             $result = LabTestResult::create($data);
             \Log::debug('Tallennettu tulos:', ['id' => $result->id]);
-            return $result;
+            //return $result;
+            return response()->json($result, 201);
         } catch (\Exception $e) {
             \Log::error('Virhe tallennuksessa:', [
                 'message' => $e->getMessage(),
