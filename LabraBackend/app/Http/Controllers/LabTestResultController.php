@@ -196,6 +196,7 @@ class LabTestResultController extends Controller
                     'Result' => $row['Result'] ?? null,
                     'MinimumValue' => $row['MinimumValue'] ?? null,
                     'MaximumValue' => $row['MaximumValue'] ?? null,
+                    'Unit' => $row['Unit'] ?? null,
                     'AdditionalText' => $row['AdditionalText'] ?? null,
                 ]);
             }

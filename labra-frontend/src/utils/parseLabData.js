@@ -86,6 +86,7 @@ export function parseOmakanta(text, personID) {
 
 
     // ---- reference values parsing ----
+    // TODO käytä parseReferenceRange-funktiota
     let min = "";
     let max = "";
     let refUnit = "";
@@ -183,6 +184,32 @@ export function parseOmakanta(text, personID) {
 
   return parsed;
 }
+
+//TODO käytetään tätä muissakin paikoissa, missä viitealuetta parsitaan
+export function parseReferenceRange(text) {
+  if (!text) return { min: null, max: null, unit: null };
+
+  // Esim. "3.1-6.8 pmol/l" tai "<5 mmol/l" tai "13-150 ug/l"
+  const unitMatch = text.match(/([a-zA-Zµ/0-9]+)$/);
+  const unit = unitMatch ? unitMatch[1] : null;
+
+  const rangePart = text.replace(unit, "").trim();
+
+  let min = null, max = null;
+  if (rangePart.includes("-")) {
+    const [a, b] = rangePart.split("-").map(s => s.trim());
+    min = a || null;
+    max = b || null;
+  } else if (rangePart.startsWith("<")) {
+    max = rangePart.replace("<", "").trim();
+  } else if (rangePart.startsWith(">")) {
+    min = rangePart.replace(">", "").trim();
+  }
+
+  return { min, max, unit };
+}
+
+
 
 export function parseGenericLabData(text) {
   // Poistetaan tyhjät rivit ja jaetaan rivit
