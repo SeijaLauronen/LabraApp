@@ -35,6 +35,7 @@ Projektin tärkeimmät koodikohdat on myös merkitty tunnisteella: // SL 202510:
 |  `src/components/LabTestResultHeader.jsx` | Taulukon otsikkokomponentti (vaakasuora/pystysuora) |
 |  `src/components/LabTestResultRow.jsx` | Yksittäisen rivin komponentti |
 |  `src/components/LabTestResultsEditor.jsx` | Muokkauskomponentti tulosten syöttöön |
+|  `src/components/LabTestImport.jsx` | Komponentti tulosten massatuontiin |
 |  `src/definitions/labfields.js` | Kenttämäärittelyt labratuloksille |
 
 ---
@@ -142,7 +143,7 @@ Frontend toimii oletuksena osoitteessa:
 | **GET** | `/api/labtestresults/{id}` | Hae yksittäinen tulos ID:n perusteella (show). |
 | **GET** | `/api/labtestresults/search` | Joukkohaku, vaatii `personID` query‑parametrin.<br>Tukee lisäparametreja:<br>• `startDate`, `endDate`<br>• `searchTerm`<br>• `sortField`, `sortOrder`<br>• `perPage`<br><br>Esimerkki:<br>`/api/labtestresults/search?`<br>`personID=TEST123&`<br>`startDate=2025-10-01&`<br>`endDate=2025-10-31&`<br>`searchTerm=gluk` |
 | **POST** | `/api/labtestresults` | Lisää uusi laboratoriotulos (store). |
-| **POST** | `/api/labtestresults/import` | Tuo useita laboratoriotuloksia kerralla.<br>Data lähetetään JSON-taulukkona, esim:<br>```[{"PersonID":"test123","SampleDate":"2025-03-27 00:00:00","AnalysisName":"Ferritiini (Ferrit)","Result":"347"}]```<br>Palauttaa: `{ "success": true }` jos tuonti onnistuu. |
+| **POST** | `/api/labtestresults/import` | Tuo useita laboratoriotuloksia kerralla.<br>Data lähetetään JSON-taulukkona, esim:<br>```[{"PersonID":"test123","SampleDate":"2025-03-27 00:00:00","AnalysisName":"Ferritiini (Ferrit)","Result":"347"}]```|
 | **PUT** | `/api/labtestresults/{id}` | Päivitä olemassa oleva tulos (update). |
 | **DELETE** | `/api/labtestresults/{id}` | Poista tulos (destroy). |
 
@@ -182,18 +183,21 @@ Laravel käsittelee pyynnön ja hakee/päivittää tietoja **MySQL-tietokannassa
 
 ## 🧠 Kehitysvaiheet
 
-✅ Toiminnot:  
-- Uuden tuloksen lisäys
+### ✅ Toteutetut toiminnot
+- Uuden tuloksen lisäys  
 - Tulosten haku henkilön tunnuksella  
 - Tulosten rajaus päivämäärävälillä  
 - Tulosten rajaus analyysinimen osalla  
-- Taulukon järjestäminen sarakeotsikoista (nouseva/laskeva) 
-- Useiden rivien valinta ja niiden muokkaus, poisto sekä kopiointi uusien tulosten pohjaksi 
+- Taulukon järjestäminen sarakeotsikoista (nouseva/laskeva)  
+- Useiden rivien valinta ja niiden muokkaus, poisto sekä kopiointi uusien tulosten pohjaksi  
+- Tulosten tuonti (copy-paste) määrämuotoisesta **Excel-taulukosta**  
+- Tulosten tuonti (copy-paste) **Omakannan** tuloksista  
+- Tulosten tuonti (copy-paste) **vapaamuotoisesta** taulukosta, jossa käyttäjä määrittelee sarakkeet  
 
-🚧 Tulossa:  
-- Käyttöliittymän parannus  
-- Lisää hakuehtoja
-- Tulosten massatuonti  
+### 🚧 Tulossa
+- Käyttöliittymän visuaaliset parannukset  
+- Datan automaattinen tarkistus ja virheilmoitukset  
+- Hienosäätöä ja käytettävyyden optimointia 
 
 ---
 
